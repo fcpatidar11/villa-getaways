@@ -1,0 +1,15 @@
+/******************************************************************
+Theme Name: Villa Getaways Theme
+Theme URI: https://www.encoresky.com
+Description: This website was built by EncoreSky Technologies Pvt Ltd using the Bones Development Theme.
+Author: EncoreSky Technologies Pvt Ltd
+Version: 1.0
+******************************************************************/
+
+.page .left-aside p {
+    color: #888897;
+    /* line-height: 36px; */
+    /* height: 100px; */
+    overflow: hidden;
+    margin: 2em 0;
+}
