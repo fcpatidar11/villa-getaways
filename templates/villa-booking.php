@@ -14,12 +14,20 @@ function formatDate($dateStr) {
     return $date ? $date->format('Y-m-d') : '';
 }
 
-$arrivalDate = $_GET['arrivalDate'];
-$departureDate = $_GET['departureDate'];
-$NoOfRooms = $_GET['NoOfRooms'];
-$date1 = new DateTime($arrivalDate);
-$date2 = new DateTime($departureDate);
-$numberOfNights= $date2->diff($date1)->format("%a");
+$arrivalDate = $_GET['arrivalDate'] ?? "";
+$departureDate = $_GET['departureDate'] ?? "";
+$NoOfRooms = $_GET['NoOfRooms'] ?? "";
+// new DateTime() throws on unparseable input; an empty string means "now",
+// which is the behaviour this page already relied on.
+try {
+    $date1 = new DateTime($arrivalDate ?: "now");
+    $date2 = new DateTime($departureDate ?: "now");
+    $numberOfNights= $date2->diff($date1)->format("%a");
+} catch (Exception $e) {
+    $date1 = new DateTime();
+    $date2 = new DateTime();
+    $numberOfNights = 0;
+}
 $show_details = false;
 if( !empty($arrivalDate ) && !empty($departureDate ) && !empty($NoOfRooms )){
     $show_details = true;
@@ -57,6 +65,7 @@ $villa_floor_plans = [];
 $number_of_bedrooms = [];
 $villa_pricing = [];
 $external_book_url = "";
+$events = [];
 if(!empty($vg_number)) {
     $conn = oracleDbConnection();
     $standardText = fetchStandardTerms($conn);
@@ -65,10 +74,10 @@ if(!empty($vg_number)) {
     
     global $footer_location_id;
     global $footer_destination_id;
-    $footer_location_id = $villa_details['LOCATION_ID'];
-    $footer_destination_id = $villa_details['DESTINATION_ID'];
-    
-    $agent_id = $villa_details['AGENT_ID'];
+    $footer_location_id = $villa_details['LOCATION_ID'] ?? "";
+    $footer_destination_id = $villa_details['DESTINATION_ID'] ?? "";
+
+    $agent_id = $villa_details['AGENT_ID'] ?? "";
     $external_book_url = fetchExternalBookUrl($conn);
     if(isset($villa_details) && count($villa_details) > 0) {
          $villa_id = $villa_details['VILLA_ID'];
@@ -116,7 +125,9 @@ foreach ($bookedDatesformatted as $entry) {
             $villa_pricing = callBookNowPricing($conn, $villa_id, $arrivalDate, $departureDate, $NoOfRooms);
            
         }
-        if($email) {
+        // $email and friends are never assigned in this template, so this branch
+        // has never run; !empty() keeps it inert without warning on every load.
+        if(!empty($email)) {
           $client_id = callCreateClient($conn, $firstName, $surname, $email, $mobile, $address, $suburb, $state, $postcode, 1, $villa_id);
         // set_transient('client_id', $client_id, 12 * HOUR_IN_SECONDS);
         // set_transient('villa_id', $villa_id, 12 * HOUR_IN_SECONDS);
@@ -211,26 +222,26 @@ if(isset($_POST['paymentoption']) && $_POST['paymentoption']=="wire_transfer"){
     
     // getting booking id
     //  $booking_id = callCreateBooking($conn, $p_villa_id, $p_client_id, $p_arrive, $p_depart, $p_num_nights, $p_num_people, $p_num_children, $p_bedrooms, $p_price_night, $p_payment_method, $p_full_payment);
-     $booking_id =  $_COOKIE["booking_id"];
+     $booking_id =  ($_COOKIE["booking_id"] ?? "");
     //  $p_client_id = $_COOKIE["client_id"];
-     $p_villa_id = $_COOKIE["villa_id"];
+     $p_villa_id = ($_COOKIE["villa_id"] ?? "");
      
-     $fname = $_COOKIE["fname"];
-     $lname = $_COOKIE["lname"];
+     $fname = ($_COOKIE["fname"] ?? "");
+     $lname = ($_COOKIE["lname"] ?? "");
     
      $p_payment_method_id=2;
      $p_receipt_tx="";
-     $p_currency_code=$_POST['currency'];
+     $p_currency_code=($_POST['currency'] ?? "");
      $csymbol =getCurrencySymbol($p_currency_code);
-     $p_amount_charged=$_POST['camount'];
+     $p_amount_charged=($_POST['camount'] ?? "");
      $p_pin_payment_fee="";
      $p_security_deposit=null;
-     $p_description=$_POST['description'];
+     $p_description=($_POST['description'] ?? "");
      $p_payment_type_id=7;
      $p_amount_charged=$p_amount_charged+20;
      
      // Email recipient
-$to = $_POST['email_2'];
+$to = ($_POST['email_2'] ?? "");
 
    $currentDate = new DateTime();
     

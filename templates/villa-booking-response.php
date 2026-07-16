@@ -31,22 +31,22 @@ if(isset($_GET['reference'])){
 if(isset($_GET['status']) && ($_GET['status']=='pending' || $_GET['status']=='active' || $_GET['status']=='success') ){
    
      
-     $p_client_id = $_COOKIE["client_id"];
-     $p_villa_id = $_COOKIE["villa_id"];
+     $p_client_id = ($_COOKIE["client_id"] ?? "");
+     $p_villa_id = ($_COOKIE["villa_id"] ?? "");
      $conn = oracleDbConnection();
          
      // getting booking id
-     $booking_id = $_COOKIE["booking_id"];
+     $booking_id = ($_COOKIE["booking_id"] ?? "");
      //  echo $booking_id;
      $p_payment_method_id=1;
          
-         $p_receipt_tx=$_GET['reference'];
-         $p_currency_code= $_COOKIE["villa_currency"];
-         $p_amount_charged=$_GET['amount'];
+         $p_receipt_tx=($_GET['reference'] ?? "");
+         $p_currency_code= ($_COOKIE["villa_currency"] ?? "");
+         $p_amount_charged=($_GET['amount'] ?? "");
          $p_pin_payment_fee=0;
          $p_security_deposit=null;
-         $p_description=$_COOKIE["villa_desc"];
-         $paysuccess = $_GET['status'];
+         $p_description=($_COOKIE["villa_desc"] ?? "");
+         $paysuccess = ($_GET['status'] ?? "");
          $p_payment_type_id=7;
          $success = callRecordPayment($conn, $booking_id,$p_payment_method_id,$p_receipt_tx,$p_currency_code,$p_amount_charged,$p_pin_payment_fee,$p_security_deposit,$p_description,$p_payment_type_id);
 
@@ -107,7 +107,7 @@ if(isset($_GET['charge_token'])){
     $bookingdetails = get_transient('booking_details');
     // if ( $bookingdetails !== false ) {
  
-    $charge_token = $_GET['charge_token'];
+    $charge_token = ($_GET['charge_token'] ?? "");
     $curl = curl_init();
     //https://pay.pinpayments.com/s0ic/test?amount_editable=false&success_url=https%3A%2F%2Fwptest.villagetaways.com%2Fresponse%2F&currency=USD&amount=1000&description=testing
     curl_setopt_array($curl, [
@@ -130,8 +130,8 @@ if(isset($_GET['charge_token'])){
         // $bookingdetails = get_transient('booking_details');
       
       
-        $p_client_id = $_COOKIE["client_id"];
-        $p_villa_id = $_COOKIE["villa_id"];
+        $p_client_id = ($_COOKIE["client_id"] ?? "");
+        $p_villa_id = ($_COOKIE["villa_id"] ?? "");
         // echo $p_client_id . " ". $p_villa_id . "<br>";
         // $p_arrive = $bookingdetails['arrivalDate'];
         // $bookingdetails['departureDate'];
@@ -157,7 +157,7 @@ if(isset($_GET['charge_token'])){
         $conn = oracleDbConnection();
          
         // getting booking id
-         $booking_id = $_COOKIE["booking_id"];
+         $booking_id = ($_COOKIE["booking_id"] ?? "");
         //  echo $booking_id;
          $p_payment_method_id=1;
          $p_receipt_tx=$charge_details['response']['token'];
@@ -217,7 +217,7 @@ if(isset($_GET['success'])){
     <div class="container p-0">
         <div class="row">
             <div class="col-xl-12 left-aside mb-5">
-            <?php if($_GET['success']==1){?>    
+            <?php if(($_GET['success'] ?? "")==1){?>    
                 <h2>Booking Confirmed!</h2>
                 Your booking is confirmed! Thank you for choosing us. We are excited to serve you soon.
                 <div id="m_popup" class="popup">
@@ -225,7 +225,7 @@ if(isset($_GET['success'])){
                   <div class="popup-content">
                        <span id="closeButton" class="closeBtn">X</span>
                         
-                        <div>Thank you for your booking, we have send details for the bank transfer to your email address at <a href="mailto:<?php echo $_GET['email'];?>"><?php echo $_GET['email'];?></a></div>
+                        <div>Thank you for your booking, we have send details for the bank transfer to your email address at <a href="mailto:<?php echo $_GET['email'] ?? "";?>"><?php echo $_GET['email'] ?? "";?></a></div>
                   </div>  
     
                  </div>
