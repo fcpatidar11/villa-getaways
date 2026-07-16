@@ -1,9 +1,9 @@
 <?php
-$latitude = $args["villa_details"]["LATITUDE"];
-$longitude = $args["villa_details"]["LONGITUDE"];
-$villa_number = $args["villa_details"]["VG_NUMBER"];
-$locationa_name = $args["villa_details"]["LOCATION_NAME"];
-$destination_name = $args["villa_details"]["DESTINATION_NAME"];
+$latitude = ($args["villa_details"]["LATITUDE"] ?? "");
+$longitude = ($args["villa_details"]["LONGITUDE"] ?? "");
+$villa_number = ($args["villa_details"]["VG_NUMBER"] ?? "");
+$locationa_name = ($args["villa_details"]["LOCATION_NAME"] ?? "");
+$destination_name = ($args["villa_details"]["DESTINATION_NAME"] ?? "");
 ?>
 <script type="text/javascript">
     function initMap() {

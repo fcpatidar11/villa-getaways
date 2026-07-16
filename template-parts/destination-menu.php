@@ -4,6 +4,7 @@ $all_destinations = fetchDestinationsForMenu($conn);
 
 
 
+$destinations_chumks = [];
 if(sizeof($all_destinations)) {
     if(sizeof($all_destinations) > 1)
 	    $destinations_chumks[0] = array_slice($all_destinations, 0, 2, true);

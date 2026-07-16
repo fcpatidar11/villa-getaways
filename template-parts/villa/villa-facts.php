@@ -86,7 +86,7 @@
 <div class="col-lg-6">
     <div class="right-aside">
         <div class="img-wrap">
-            <img src="<?php echo home_url("/wp-content/uploads/" . $args["villa_details"]["RANDOM_VILLA_IMAGE"]); ?>" alt="Destionation Image">
+            <img src="<?php echo home_url("/wp-content/uploads/" . ($args["villa_details"]["RANDOM_VILLA_IMAGE"] ?? "")); ?>" alt="Destionation Image">
         </div>
     </div>
 </div>

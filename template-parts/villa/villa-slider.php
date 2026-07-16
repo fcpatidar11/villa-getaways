@@ -1,8 +1,8 @@
 <?php
 $conn = oracleDbConnection();
-$villa_images = fetchVillaSliderImages($conn, $args["villa_details"]["VILLA_ID"]);
-//$args["villa_details"]["VILLA_ID"] = "848";
-$villa_videoes = fetchVillaVideos($conn, $args["villa_details"]["VILLA_ID"]);
+$villa_images = fetchVillaSliderImages($conn, ($args["villa_details"]["VILLA_ID"] ?? ""));
+//($args["villa_details"]["VILLA_ID"] ?? "") = "848";
+$villa_videoes = fetchVillaVideos($conn, ($args["villa_details"]["VILLA_ID"] ?? ""));
 
 function checkVideoSource($iframeSource) {
     // Parse the source URL to extract the domain

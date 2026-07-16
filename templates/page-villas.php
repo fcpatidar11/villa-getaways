@@ -260,12 +260,13 @@ if($destination_id){
     }
 }
 
-if( isset($_REQUEST['location_id']) && $_REQUEST['location_id'] ) {
-    foreach($_REQUEST['location_id'] as $id) {
-        if( $id )
-            $location_ids_arr[] = $id;
-    }
-    
+foreach(vg_request_array('location_id') as $id) {
+    if( $id )
+        $location_ids_arr[] = $id;
+}
+
+if( $location_ids_arr ) {
+
     if( is_array($location_ids_arr) && sizeof($location_ids_arr) > 1) {
         
         $destination = fetchDestination($conn, $destination_id);
@@ -305,10 +306,12 @@ if( is_array($location_ids_arr) && sizeof($location_ids_arr) == 0) {
     }
 }
 $desTitle = "";
-if( isset($_REQUEST['region_id']) && $_REQUEST['region_id']) {
-    $desTitle = fetchRegionTitle($conn, $_REQUEST['region_id'][0]);
-}elseif( isset($_REQUEST['location_id']) && $_REQUEST['location_id'] ) {
-    $desTitle = fetchLocationTitle($conn, $_REQUEST['location_id'][0]);
+$request_region_ids = vg_request_array('region_id');
+$request_location_ids = vg_request_array('location_id');
+if( $request_region_ids ) {
+    $desTitle = fetchRegionTitle($conn, $request_region_ids[0]);
+}elseif( $request_location_ids ) {
+    $desTitle = fetchLocationTitle($conn, $request_location_ids[0]);
 }else{
     if($regin_id) {
         $desTitle = fetchRegionTitle($conn, $regin_id);

@@ -32,6 +32,10 @@ $villa_id="";
 $villa_floor_plans = [];
 $number_of_bedrooms = [];
 $external_book_url = "";
+$villa_reviews = [];
+$events = [];
+$country_name = "";
+$location_name = "";
 
 
 
@@ -44,10 +48,10 @@ if(!empty($vg_number)) {
    
     global $footer_location_id;
     global $footer_destination_id;
-    $footer_location_id = $villa_details['LOCATION_ID'];
-    $footer_destination_id = $villa_details['DESTINATION_ID'];
-    
-    $agent_id = $villa_details['AGENT_ID'];
+    $footer_location_id = $villa_details['LOCATION_ID'] ?? "";
+    $footer_destination_id = $villa_details['DESTINATION_ID'] ?? "";
+
+    $agent_id = $villa_details['AGENT_ID'] ?? "";
     $external_book_url = fetchExternalBookUrl($conn);
     if(isset($villa_details) && count($villa_details) > 0) {
         $villa_id = $villa_details['VILLA_ID'];

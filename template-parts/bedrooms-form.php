@@ -9,23 +9,14 @@ $dateStart = ( isset($_REQUEST['date_start']) && $_REQUEST['date_start'] ) ? $_R
 $dateEnd = ( isset($_REQUEST['date_end']) && $_REQUEST['date_end'] ) ? $_REQUEST['date_end'] : "";
 
 
-$location_ids = [];
-if( isset($_REQUEST['location_id']) && $_REQUEST['location_id'] ) {
-    foreach($_REQUEST['location_id'] as $id) {
-        $location_ids[] = $id;
-    }
-}
-
-$region_ids = [];
-if( isset($_REQUEST['region_id']) && $_REQUEST['region_id'] ) {
-    foreach($_REQUEST['region_id'] as $id) {
-        $region_ids[] = $id;
-    }
-}
+$location_ids = vg_request_array('location_id');
+$region_ids = vg_request_array('region_id');
 
 $bedroomNumberList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-$args_destination_id = $args['destination_id'];
-$args_location_id = $args['location_id'];
+// get_template_part() only defines $args when the caller passes one.
+$args = isset($args) && is_array($args) ? $args : [];
+$args_destination_id = $args['destination_id'] ?? "";
+$args_location_id = $args['location_id'] ?? "";
 ?>
 
 <form action="" method="get" id="filter-by-bedrooms">

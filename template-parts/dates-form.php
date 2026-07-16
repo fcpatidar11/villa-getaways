@@ -7,19 +7,8 @@ $bedrooms = ( isset($_REQUEST['bedrooms']) && $_REQUEST['bedrooms'] ) ? $_REQUES
 $dateStart = ( isset($_REQUEST['date_start']) && $_REQUEST['date_start'] ) ? $_REQUEST['date_start'] : date('d-m-Y', strtotime("+7 day"));
 $dateEnd = ( isset($_REQUEST['date_end']) && $_REQUEST['date_end'] ) ? $_REQUEST['date_end'] : date('d-m-Y', strtotime("+14 day"));
 
-$location_ids = [];
-if( isset($_REQUEST['location_id']) && $_REQUEST['location_id'] ) {
-    foreach($_REQUEST['location_id'] as $id) {
-        $location_ids[] = $id;
-    }
-}
-
-$region_ids = [];
-if( isset($_REQUEST['region_id']) && $_REQUEST['region_id'] ) {
-    foreach($_REQUEST['region_id'] as $id) {
-        $region_ids[] = $id;
-    }
-}
+$location_ids = vg_request_array('location_id');
+$region_ids = vg_request_array('region_id');
 
 $bedroomNumberList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 ?>

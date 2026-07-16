@@ -88,11 +88,9 @@ if($destination_id){
     $locations = fetchDestinationLocations($conn, $destination_id);
 }
 
-if( isset($_REQUEST['location_id']) && $_REQUEST['location_id'] ) {
-    foreach($_REQUEST['location_id'] as $id) {
-        if( $id )
-            $location_ids_arr[] = $id;
-    }
+foreach(vg_request_array('location_id') as $id) {
+    if( $id )
+        $location_ids_arr[] = $id;
 }
 
 
@@ -147,7 +145,7 @@ if( is_array($location_ids_arr) && sizeof($location_ids_arr) == 0) {
                     </div>
                     <div class="col-4 float-right">
                         <div class="float-right filterBarRooms">
-                            <?php echo get_template_part('template-parts/bedrooms', 'form'); ?>
+                            <?php echo get_template_part('template-parts/bedrooms', 'form', ["destination_id" => $destination_id, "location_id" => ""]); ?>
                         </div>
                     </div>
                 </div>

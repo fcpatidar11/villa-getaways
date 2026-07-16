@@ -217,6 +217,20 @@ function bones_excerpt_more($more) {
 	return '...  <a class="excerpt-read-more" href="'. get_permalink( $post->ID ) . '" title="'. __( 'Read ', 'bonestheme' ) . esc_attr( get_the_title( $post->ID ) ).'">'. __( 'Read more &raquo;', 'bonestheme' ) .'</a>';
 }
 
+if (!function_exists('vg_request_array')) {
+    /**
+     * Read a request key that is expected to be a list of ids.
+     * Accepts ?k[]=1&k[]=2 and ?k=1 alike; always returns an array, so
+     * count()/implode()/foreach on the result cannot throw a TypeError.
+     */
+    function vg_request_array($key) {
+        if (!isset($_REQUEST[$key]) || $_REQUEST[$key] === '' || $_REQUEST[$key] === null) {
+            return [];
+        }
+        return is_array($_REQUEST[$key]) ? $_REQUEST[$key] : [$_REQUEST[$key]];
+    }
+}
+
 function showRatingDiamonds($ratings) {
     $html = "";
     if($ratings >= 1)
@@ -245,8 +259,8 @@ if (!function_exists("destination_location")) {
         $no_regions = false;
         $html = '';
         if( isset($_REQUEST["type"]) && $_REQUEST["type"] && $_REQUEST["type"] == 'destination' ) {
-            $locations = fetchDestinationLocations($conn, $_REQUEST["destination_id"]);
-            $regions = fetchRegions($conn, $_REQUEST["destination_id"]);
+            $locations = fetchDestinationLocations($conn, $_REQUEST["destination_id"] ?? "");
+            $regions = fetchRegions($conn, $_REQUEST["destination_id"] ?? "");
             if(!empty($regions)) {
                 if(count($regions) == 1) {
                     if( empty( $regions[""] ) || is_null( $regions[""] ) ) {
@@ -263,8 +277,9 @@ if (!function_exists("destination_location")) {
         } elseif( isset($_REQUEST["type"]) && $_REQUEST["type"] && $_REQUEST["type"] == 'location' ) {
             $locations = [];
             $location_ids = "";
-            if( isset($_REQUEST["location_id"]) && $_REQUEST["location_id"] ) {
-                foreach($_REQUEST["location_id"] AS $location_id) {
+            $request_location_ids = vg_request_array('location_id');
+            if( $request_location_ids ) {
+                foreach($request_location_ids AS $location_id) {
                     $locations[] = $location_id;
                 }
                 $location_ids = implode(",", $locations);
@@ -410,39 +425,39 @@ add_action('wp_ajax_nopriv_villa_booking_details','villa_booking_details');
 if (!function_exists("villa_booking_details")) {
     function villa_booking_details() {
        
-        $f_name = $_REQUEST["fname"];
-        $l_name = $_REQUEST["lname"] ;
-        $address_line = $_REQUEST["address_line"];
-        $address_state = $_REQUEST["address_state"];
-        $address_country = $_REQUEST["address_country"];
-        $address_postcode = $_REQUEST["address_postcode"];
-        $email = $_REQUEST["email"];
+        $f_name = $_REQUEST["fname"] ?? "";
+        $l_name = $_REQUEST["lname"] ?? "";
+        $address_line = $_REQUEST["address_line"] ?? "";
+        $address_state = $_REQUEST["address_state"] ?? "";
+        $address_country = $_REQUEST["address_country"] ?? "";
+        $address_postcode = $_REQUEST["address_postcode"] ?? "";
+        $email = $_REQUEST["email"] ?? "";
         $villaId = (int) ($_REQUEST["villaId"] ?? 0);
         $amount = number_format((float) str_replace(',', '', $_REQUEST["amount"] ?? 0));
-        $mobile = $_REQUEST["mobile_num"] ;
-        $suburb = $_REQUEST["suburb"];
-        $night = $_REQUEST["night"];
-        $csymbol = $_REQUEST["csymbol"];
+        $mobile = $_REQUEST["mobile_num"] ?? "";
+        $suburb = $_REQUEST["suburb"] ?? "";
+        $night = $_REQUEST["night"] ?? "";
+        $csymbol = $_REQUEST["csymbol"] ?? "";
         // $villaprice = preg_replace('([^\d,.]+)', '', $_REQUEST["villaprice"]);
-        $villaprice = $_REQUEST["villaprice"];
-        $children = $_REQUEST["children"] ;
-        $villa_desc = $_REQUEST["villa_desc"];
-        $adults = $_REQUEST["adults"] ;
-        $NoOfRooms = $_REQUEST["NoOfRooms"] ;
-        $arrivalDate = $_REQUEST["arrivalDate"];
-        $departureDate = $_REQUEST["departureDate"];
-        $paymentMethod = $_REQUEST["paymentMethod"];
-        $villa_currency = $_REQUEST["villa_currency"];
+        $villaprice = $_REQUEST["villaprice"] ?? "";
+        $children = $_REQUEST["children"] ?? "";
+        $villa_desc = $_REQUEST["villa_desc"] ?? "";
+        $adults = $_REQUEST["adults"] ?? "";
+        $NoOfRooms = $_REQUEST["NoOfRooms"] ?? "";
+        $arrivalDate = $_REQUEST["arrivalDate"] ?? "";
+        $departureDate = $_REQUEST["departureDate"] ?? "";
+        $paymentMethod = $_REQUEST["paymentMethod"] ?? "";
+        $villa_currency = $_REQUEST["villa_currency"] ?? "";
         $payment_details['villa_currency'] = $villa_currency;
-        
-        $address_country_code =  $_REQUEST["address_country_code"];
-        $phone_code =  $_REQUEST["phone_code"];
+
+        $address_country_code =  $_REQUEST["address_country_code"] ?? "";
+        $phone_code =  $_REQUEST["phone_code"] ?? "";
         
         
         $conn = oracleDbConnection();
         
 
-         $client_id = callCreateClient($conn, $f_name, $l_name, $email, $mobile, $address_line, $suburb, $address_state, $address_postcode, 1, $_REQUEST["villaId"]);
+         $client_id = callCreateClient($conn, $f_name, $l_name, $email, $mobile, $address_line, $suburb, $address_state, $address_postcode, 1, $_REQUEST["villaId"] ?? "");
   
   
         setcookie("fname", $f_name, time() + 86400, "/");
@@ -487,7 +502,7 @@ if (!function_exists("villa_booking_details")) {
         }
         $villaprice = str_replace(',', '', $villaprice);
       
-        $booking_id = callCreateBooking($conn, $_REQUEST["villaId"], $client_id, $arrivalDate, $departureDate, $night, 
+        $booking_id = callCreateBooking($conn, $_REQUEST["villaId"] ?? "", $client_id, $arrivalDate, $departureDate, $night,
         $adults, $children, $NoOfRooms, $villaprice, $p_payment_method, $p_full_payment);
 
        setcookie("booking_id", $booking_id, time() + 86400, "/");
@@ -503,9 +518,9 @@ if (!function_exists("dierct_payment")) {
     function dierct_payment() {
        
       
-      $booking_id = $_POST['bookingid'];
-      $villa_currency = $_POST['villa_currency'];
-      $villa_desc = $_POST['villa_desc'];
+      $booking_id = $_POST['bookingid'] ?? "";
+      $villa_currency = $_POST['villa_currency'] ?? "";
+      $villa_desc = $_POST['villa_desc'] ?? "";
 
       setcookie("booking_id", $booking_id, time() + 86400, "/");
       setcookie("villa_currency", $villa_currency, time() + 86400, "/");

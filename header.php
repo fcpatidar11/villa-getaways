@@ -9,35 +9,45 @@ global $loc;
 global $title;
 global $heading;
 
+// These are only assigned further down on villa/search pages; default them so
+// every other page (home, blog, 404) can read them without warning.
+$location_name    = $location_name ?? "";
+$destination_name = $destination_name ?? "";
+$des_name         = $des_name ?? "";
+$loc_name         = $loc_name ?? "";
+$location         = $location ?? "";
+$loc              = $loc ?? "";
+$title            = $title ?? "";
+$heading          = $heading ?? "";
+
 
 
 if( isset($_REQUEST["is_search"]) && $_REQUEST["is_search"] ) {
     // 86400 = 1 day
-    setcookie("__destination_id", $_REQUEST['destination_id'], time() + (86400 * 30), "/", "", true);
-    if(isset($_REQUEST['location_id']) && $_REQUEST['location_id']) {
-        setcookie("__location_id", implode(",", $_REQUEST['location_id']), time() + (86400 * 30), "/", "", true);
+    setcookie("__destination_id", $_REQUEST['destination_id'] ?? "", time() + (86400 * 30), "/", "", true);
+    $search_location_ids = vg_request_array('location_id');
+    if($search_location_ids) {
+        setcookie("__location_id", implode(",", $search_location_ids), time() + (86400 * 30), "/", "", true);
     }
-    setcookie("__date_start", $_REQUEST['date_start'], time() + (86400 * 30), "/", "", true);
-    setcookie("__date_end", $_REQUEST['date_end'], time() + (86400 * 30), "/", "", true);
-    setcookie("__bedrooms", $_REQUEST['bedrooms'], time() + (86400 * 30), "/", "", true);
-    setcookie("__page", $_REQUEST['page'], time() + (86400 * 30), "/", "", true);
+    setcookie("__date_start", $_REQUEST['date_start'] ?? "", time() + (86400 * 30), "/", "", true);
+    setcookie("__date_end", $_REQUEST['date_end'] ?? "", time() + (86400 * 30), "/", "", true);
+    setcookie("__bedrooms", $_REQUEST['bedrooms'] ?? "", time() + (86400 * 30), "/", "", true);
+    setcookie("__page", $_REQUEST['page'] ?? "", time() + (86400 * 30), "/", "", true);
 }
 
 if(isset($_GET['date_start'])){
-     setcookie("__date_start", $_REQUEST['date_start'], time() + (86400 * 30), "/", "", true);
+     setcookie("__date_start", $_REQUEST['date_start'] ?? "", time() + (86400 * 30), "/", "", true);
 }
 if(isset($_GET['date_end'])){
-     setcookie("__date_end", $_REQUEST['date_end'], time() + (86400 * 30), "/", "", true);
+     setcookie("__date_end", $_REQUEST['date_end'] ?? "", time() + (86400 * 30), "/", "", true);
 }
 
 $urlPath = trim(parse_url(add_query_arg(array()), PHP_URL_PATH), '/');
 
 $url = $_SERVER['REQUEST_URI'];
 preg_match('/\d+/', $url, $matches);
-// Extract the matched integer value
-if(!empty($matches)) {
-    $vg_number = (int) $matches[0];
-}
+// Extract the matched integer value; URLs with no digits leave it 0.
+$vg_number = !empty($matches) ? (int) $matches[0] : 0;
 ?>
 <!doctype html>
 <html lang="en">
@@ -174,13 +184,13 @@ if(!empty($matches)) {
             ?>
                 <title><?php echo isset($meta_data["TITLE"]) ? $meta_data["TITLE"] : "Villa Getaways"; ?></title>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <meta name="description" content="<?php echo $meta_data["DESCRIPTION"]; ?>" />
+                <meta name="description" content="<?php echo $meta_data["DESCRIPTION"] ?? ""; ?>" />
                 <meta name="block" content="false" />
-                <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"]; ?>" />
-                <meta name="email" content="<?php echo $meta_data["EMAIL"]; ?>" />
-                <meta name="author" content="<?php echo $meta_data["AUTHOR"]; ?>" />
-                <meta name="language" content="<?php echo $meta_data["LANGUAGE"]; ?>" />
-                <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"]; ?>" />
+                <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"] ?? ""; ?>" />
+                <meta name="email" content="<?php echo $meta_data["EMAIL"] ?? ""; ?>" />
+                <meta name="author" content="<?php echo $meta_data["AUTHOR"] ?? ""; ?>" />
+                <meta name="language" content="<?php echo $meta_data["LANGUAGE"] ?? ""; ?>" />
+                <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"] ?? ""; ?>" />
             <?php 
             }
         }elseif($location_header_name) {
@@ -193,13 +203,13 @@ if(!empty($matches)) {
             ?>
                 <title><?php echo isset($meta_data["TITLE"]) ? $meta_data["TITLE"] : "$location_header_name Villa Rentals in $destination_name - Luxury Vacation Villas | Villa Getaways"; ?></title>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <meta name="description" content="<?php echo $meta_data["DESCRIPTION"]; ?>" />
+                <meta name="description" content="<?php echo $meta_data["DESCRIPTION"] ?? ""; ?>" />
                 <meta name="block" content="false" />
-                <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"]; ?>" />
-                <meta name="email" content="<?php echo $meta_data["EMAIL"]; ?>" />
-                <meta name="author" content="<?php echo $meta_data["AUTHOR"]; ?>" />
-                <meta name="language" content="<?php echo $meta_data["LANGUAGE"]; ?>" />
-                <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"]; ?>" />
+                <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"] ?? ""; ?>" />
+                <meta name="email" content="<?php echo $meta_data["EMAIL"] ?? ""; ?>" />
+                <meta name="author" content="<?php echo $meta_data["AUTHOR"] ?? ""; ?>" />
+                <meta name="language" content="<?php echo $meta_data["LANGUAGE"] ?? ""; ?>" />
+                <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"] ?? ""; ?>" />
             <?php 
             }
         }
@@ -211,13 +221,13 @@ if(!empty($matches)) {
                 ?>
                     <title><?php echo isset($meta_data["TITLE"]) ? $meta_data["TITLE"] : " $name Villas | Holiday Homes, Vacation Rentals & Luxury Villas | Villa Getaways"; ?></title>
                     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                    <meta name="description" content="<?php echo $meta_data["DESCRIPTION"]; ?>" />
+                    <meta name="description" content="<?php echo $meta_data["DESCRIPTION"] ?? ""; ?>" />
                     <meta name="block" content="false" />
-                    <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"]; ?>" />
-                    <meta name="email" content="<?php echo $meta_data["EMAIL"]; ?>" />
-                    <meta name="author" content="<?php echo $meta_data["AUTHOR"]; ?>" />
-                    <meta name="language" content="<?php echo $meta_data["LANGUAGE"]; ?>" />
-                    <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"]; ?>" />
+                    <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"] ?? ""; ?>" />
+                    <meta name="email" content="<?php echo $meta_data["EMAIL"] ?? ""; ?>" />
+                    <meta name="author" content="<?php echo $meta_data["AUTHOR"] ?? ""; ?>" />
+                    <meta name="language" content="<?php echo $meta_data["LANGUAGE"] ?? ""; ?>" />
+                    <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"] ?? ""; ?>" />
                 <?php 
                 }
             }
@@ -305,7 +315,7 @@ if(!empty($matches)) {
         
         $villa_details = fetchVillaDetails($conn, $vg_number, 1);
         if(!empty($villa_details)) {
-            $villa_id = $villa_details['VILLA_ID'];
+            $villa_id = $villa_details['VILLA_ID'] ?? "";
             
             $meta_data = fetchMetaDataForVilla($conn, $villa_id);
             $actual_link = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
@@ -322,16 +332,16 @@ if(!empty($matches)) {
         ?>
                 <title><?php echo $title; ?></title>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <meta name="description" content="<?php echo $meta_data["DESCRIPTION"]; ?>" />
+                <meta name="description" content="<?php echo $meta_data["DESCRIPTION"] ?? ""; ?>" />
                 <meta name="block" content="false" />
-                <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"]; ?>" />
-                <meta name="email" content="<?php echo $meta_data["EMAIL"]; ?>" />
-                <meta name="author" content="<?php echo $meta_data["AUTHOR"]; ?>" />
-                <meta name="language" content="<?php echo $meta_data["LANGUAGE"]; ?>" />
-                <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"]; ?>" />
+                <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"] ?? ""; ?>" />
+                <meta name="email" content="<?php echo $meta_data["EMAIL"] ?? ""; ?>" />
+                <meta name="author" content="<?php echo $meta_data["AUTHOR"] ?? ""; ?>" />
+                <meta name="language" content="<?php echo $meta_data["LANGUAGE"] ?? ""; ?>" />
+                <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"] ?? ""; ?>" />
                 <meta property="og:title" content="<?php echo isset($meta_data["DESCRIPTION"]) ? $meta_data["DESCRIPTION"] : "Villa Getaways"; ?>" />
                 <meta property="og:url" content="<?php echo $actual_link; ?>" />
-                <meta property="og:image" content="<?php echo home_url("/wp-content/uploads" . $villa_details['RANDOM_VILLA_IMAGE']); ?>" />
+                <meta property="og:image" content="<?php echo home_url("/wp-content/uploads" . ($villa_details['RANDOM_VILLA_IMAGE'] ?? "")); ?>" />
 
         <?php 
             }
@@ -351,7 +361,7 @@ if(!empty($matches)) {
         if(!empty($meta_data)) { ?>
             <title><?php echo isset($meta_data["TITLE"]) ? $meta_data["TITLE"] : "Villa Getaways"; ?></title>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-            <meta name="description" content="<?php echo $meta_data["DESCRIPTION"]; ?>" />
+            <meta name="description" content="<?php echo $meta_data["DESCRIPTION"] ?? ""; ?>" />
             <meta name="block" content="false" />
             <meta name="copyright" content="Villa Getaways Ltd" />
             <meta name="email" content="webmaster@villagetaways.net" />
@@ -369,7 +379,7 @@ if(!empty($matches)) {
         if(!empty($meta_data)) { ?>
             <title><?php echo isset($meta_data["TITLE"]) ? $meta_data["TITLE"] : "Villa Getaways"; ?></title>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-            <meta name="description" content="<?php echo $meta_data["DESCRIPTION"]; ?>" />
+            <meta name="description" content="<?php echo $meta_data["DESCRIPTION"] ?? ""; ?>" />
             <meta name="block" content="false" />
             <meta name="copyright" content="Villa Getaways Ltd" />
             <meta name="email" content="webmaster@villagetaways.net" />
@@ -384,13 +394,13 @@ if(!empty($matches)) {
         if(!empty($meta_data)) { ?>
             <title><?php echo isset($meta_data["TITLE"]) ? $meta_data["TITLE"] : "Villa Getaways"; ?></title>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-            <meta name="description" content="<?php echo $meta_data["DESCRIPTION"]; ?>" />
+            <meta name="description" content="<?php echo $meta_data["DESCRIPTION"] ?? ""; ?>" />
             <meta name="block" content="false" />
-            <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"]; ?>" />
-            <meta name="email" content="<?php echo $meta_data["EMAIL"]; ?>" />
-            <meta name="author" content="<?php echo $meta_data["AUTHOR"]; ?>" />
-            <meta name="language" content="<?php echo $meta_data["LANGUAGE"]; ?>" />
-            <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"]; ?>" />
+            <meta name="copyright" content="<?php echo $meta_data["COPYRIGHT"] ?? ""; ?>" />
+            <meta name="email" content="<?php echo $meta_data["EMAIL"] ?? ""; ?>" />
+            <meta name="author" content="<?php echo $meta_data["AUTHOR"] ?? ""; ?>" />
+            <meta name="language" content="<?php echo $meta_data["LANGUAGE"] ?? ""; ?>" />
+            <meta name="mssmarttagspreventparsing" content="<?php echo $meta_data["MSSMARTTAGSPREVENTPARSING"] ?? ""; ?>" />
     <?php
         }
     }

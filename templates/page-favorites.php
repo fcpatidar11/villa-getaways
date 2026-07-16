@@ -16,7 +16,8 @@ $location_name = "";
 $destination_name = "";
 $url_path = trim(parse_url(add_query_arg(array()), PHP_URL_PATH), '/');
 $heading = "Favourites Villas";
-$vg_numbers = implode(',', explode('|', $_COOKIE["__favorites_villas"]));
+$vg_numbers = implode(',', explode('|', $_COOKIE["__favorites_villas"] ?? ""));
+$destination = [];
 if($vg_numbers) {
     $destination = fetchFavoritesVillaDetails($conn, $vg_numbers);
 }

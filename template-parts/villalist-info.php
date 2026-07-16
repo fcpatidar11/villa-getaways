@@ -21,31 +21,14 @@ $page = ( isset($_REQUEST['page']) && $_REQUEST['page'] ) ? $_REQUEST['page'] : 
 
 $price = ( isset($_REQUEST['price']) && $_REQUEST['price'] ) ? $_REQUEST['price'] : "";
 
-$location_ids = "";
-if( isset($_REQUEST['location_id']) && $_REQUEST['location_id'] ) {
-    foreach($_REQUEST['location_id'] as $id) {
-        if($location_ids == "")
-            $location_ids = $id;
-        else
-            $location_ids .= ", " . $id;
-    }
-}
-
-$region_ids = "";
-if( isset($_REQUEST['region_id']) && $_REQUEST['region_id'] ) {
-    foreach($_REQUEST['region_id'] as $id) {
-        if($region_ids == "")
-            $region_ids = $id;
-        else
-            $region_ids .= ", " . $id;
-    }
-}
+$location_ids = implode(", ", vg_request_array('location_id'));
+$region_ids = implode(", ", vg_request_array('region_id'));
 
 // if( $destination_id ) {
    
 //     $villas = searchVillalistVillas($conn, $_REQUEST['destination_id'], $location_ids, $region_ids, date("d/m/Y", strtotime($date_start)), date("d/m/Y", strtotime($date_end)), $bedrooms, $page, $price);
 // }else {
-    $villas = $args['destination'];
+    $villas = $args['destination'] ?? [];
 //}
 
 if ( isset($villas) && $villas ) {

@@ -3,20 +3,24 @@
 get_header();
 
 
-$villa_number = $_GET['villa_number'];
+$villa_number = $_GET['villa_number'] ?? "";
 $agent_id = "";
 $villa_id = "";
+// /inquiry can be visited with no villa_number; default everything the
+// markup below reads so the page renders without warnings.
+$conn = oracleDbConnection();
+$wlcome_msg = "";
+$villa_details = [];
+$countryIds = getCountryId($conn);
+$image = "";
+$date_from = date("d-m-Y");
+$date_to = date('d-m-Y', strtotime(' +1 day'));
 if($villa_number) {
-    $conn = oracleDbConnection();
-    $wlcome_msg = "";
     $bedrooms = (isset($_COOKIE["__bedrooms"]) && $_COOKIE["__bedrooms"]) ? $_COOKIE["__bedrooms"] : 1;
     $villa_details = fetchVillaDetails($conn, $villa_number, $bedrooms);
-    $countryIds = getCountryId($conn);
-    $image = $villa_details['RANDOM_VILLA_IMAGE'];
-    $villa_id = $villa_details['VILLA_ID'];
-    $agent_id = $villa_details['AGENT_ID'];
-    $date_from = date("d-m-Y");
-    $date_to = date('d-m-Y', strtotime(' +1 day'));
+    $image = $villa_details['RANDOM_VILLA_IMAGE'] ?? "";
+    $villa_id = $villa_details['VILLA_ID'] ?? "";
+    $agent_id = $villa_details['AGENT_ID'] ?? "";
 }
 
 

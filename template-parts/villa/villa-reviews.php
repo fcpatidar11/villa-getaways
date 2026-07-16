@@ -28,7 +28,7 @@ if ( ! function_exists( 'generateStarRating' ) ) {
         <h2>Reviews</h2>
         <div class="destination-content-action">
             <?php 
-            if($args["villa_reviews"]) {
+            if(!empty($args["villa_reviews"])) {
                 foreach( $args["villa_reviews"] AS $villa_review ) {
                     
                     

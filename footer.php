@@ -1,25 +1,30 @@
 <?php
 $conn = oracleDbConnection();
 global $footer_location_id, $footer_destination_id;
+// Only assigned by the villa templates; default them for every other page.
+$footer_location_id    = $footer_location_id ?? "";
+$footer_destination_id = $footer_destination_id ?? "";
+$form_locations        = [];
+$location_footer_id    = "";
 $des_name = "";
 $form_des = fetchDestinations($conn);
 $__location_id = (isset($_COOKIE["__location_id"]) && $_COOKIE["__location_id"]) ? $_COOKIE["__location_id"] : "";
 $__destination_id = (isset($_COOKIE["__destination_id"]) && $_COOKIE["__destination_id"]) ? $_COOKIE["__destination_id"] : "";
 $destination_id = ( isset($_REQUEST['destination_id']) && $_REQUEST['destination_id'] ) ? $_REQUEST['destination_id'] : "";
-$location_id = ( isset($_REQUEST['location_id']) && $_REQUEST['location_id'] ) ? $_REQUEST['location_id'] : "";
+$location_id = vg_request_array('location_id');
 $countryIds = getCountryId($conn);
 $class = "show";
-if($location_id && count($location_id) > 1) {
+if(count($location_id) > 1) {
     $locationIds = implode(",", $location_id);
 }else {
-    $locationIds = $location_id[0];
+    $locationIds = $location_id[0] ?? "";
 }
 if($destination_id) {
     $form_locations = fetchDestinationLocations($conn, $destination_id);
-    
-   
+
+
 }
-if($location_id && count($location_id) > 0) {
+if(count($location_id) > 0) {
     $form_locations = fetchDestinationLocations($conn, $destination_id);
     $location_footer_id = $location_id[0];
     
@@ -119,15 +124,20 @@ if($footer_location_id) {
                         global $location_name;
                         global $heading;
                         
-                        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST["let-us-know-form"] == "Submit") {
+                        // Defaults for the GET render, before any submission has happened.
+                        $result = "";
+                        $destination_value = "";
+                        $location_value = "";
+
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST["let-us-know-form"] ?? "") == "Submit") {
                             // Retrieve form data
-                            $firstname = $_POST['firstname'];
-                            $lastname = $_POST['lastname'];
-                            $number = $_POST['number'];
-                            $email = $_POST['email'];
-                            $destination = $_POST['destination_footer_id'];
-                            $message = $_POST['message'];
-                            $location = $_POST['location_footer_id'];
+                            $firstname = $_POST['firstname'] ?? "";
+                            $lastname = $_POST['lastname'] ?? "";
+                            $number = $_POST['number'] ?? "";
+                            $email = $_POST['email'] ?? "";
+                            $destination = $_POST['destination_footer_id'] ?? "";
+                            $message = $_POST['message'] ?? "";
+                            $location = $_POST['location_footer_id'] ?? "";
                         
                             // Perform form validation
                             $errors = array();
@@ -613,7 +623,7 @@ if($footer_location_id) {
 
 <?php
 // Check if the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["recommend-form-submit"] === "submit") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["recommend-form-submit"] ?? "") === "submit") {
     // Define an array to store validation errors
     $errors = [];
 
@@ -634,16 +644,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["recommend-form-submit"] === 
 
 
     if (empty($errors)) {
-        $firstName = $_POST["recommend-first-name"];
-        $lastName = $_POST["recommend-last-name"];
-        $email = $_POST["recommend-email"];
-        $destination = $_POST["recommend-destination"];
-        $location = $_POST["recommend-location"];
-        $adults = $_POST["recommend-adults"];
-        $children = $_POST["recommend-children"];
-        $comments = $_POST["recommend-comment"];
+        $firstName = $_POST["recommend-first-name"] ?? "";
+        $lastName = $_POST["recommend-last-name"] ?? "";
+        $email = $_POST["recommend-email"] ?? "";
+        $destination = $_POST["recommend-destination"] ?? "";
+        $location = $_POST["recommend-location"] ?? "";
+        $adults = $_POST["recommend-adults"] ?? "";
+        $children = $_POST["recommend-children"] ?? "";
+        $comments = $_POST["recommend-comment"] ?? "";
         $dates_flexible = isset($_POST["recommend-dates-flexible"]) ? $_POST["recommend-dates-flexible"] : "0";
-        $mobile = $_POST["recommend-mobile"];
+        $mobile = $_POST["recommend-mobile"] ?? "";
     
         $recommend_result = recommend($conn, $firstName, $lastName, $email, $mobile,$destination, $location, $comments, $adults, $children, $dates_flexible);
 
@@ -1016,10 +1026,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["recommend-form-submit"] === 
     <?php 
     $url = $_SERVER['REQUEST_URI'];
     preg_match('/\d+/', $url, $matches);
-    // Extract the matched integer value
-    if(!empty($matches)) {
-        $vg_number = (int) $matches[0];
-    }
+    // Extract the matched integer value; URLs with no digits leave it 0.
+    $vg_number = !empty($matches) ? (int) $matches[0] : 0;
 
     if( $vg_number ) {
         $event_dates = [];
@@ -1337,6 +1345,9 @@ function remove_duplicate_arrivals($dates) {
 
 $bookedDatesformatted = remove_duplicate_arrivals($bookedDatesformatted);
 
+// A villa with no bookings leaves this empty; json_encode() below must still
+// emit [] rather than null, or FullCalendar gets a null events list.
+$event_dates2 = [];
 
 foreach ($bookedDatesformatted as $entry) {
 

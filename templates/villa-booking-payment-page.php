@@ -9,25 +9,26 @@ if(isset($_GET['ref'])){
  $data = fetchbookingDetails($conn, $ref);
 
 
-$data = $data['0'];
+// An unknown ref returns no rows; fall back to an empty record.
+$data = is_array($data) && isset($data['0']) && is_array($data['0']) ? $data['0'] : [];
 
 
-$booking_id = $data['BOOKING_ID'];
+$booking_id = $data['BOOKING_ID'] ?? "";
  setcookie("booking_id",  $booking_id, time() + 86400, "/");
-$amount = $data['AMOUNT'];
- $fname =$data['FIRSTNAME'];
- $lname = $data['LASTNAME'];
- $no_people = $data['NUM_PEOPLE'];
- $no_child =$data['NUM_CHILDREN'];
- $address = $data['ADDRESS'];
- $city = $data['SUBURB'];
- $state = $data['STATE'];
- $country = $data['COUNTRY'];
- $zip = $data['POSTCODE'];
- $phone = $data['PHONE_MOBILE'];
- $email = $data['CLIENT_EMAIL'];
- $c_code = $data['COUNTRY_ISO3'];
- $p_code = $data['COUNTRY_NUMCODE'];
+$amount = $data['AMOUNT'] ?? "";
+ $fname =$data['FIRSTNAME'] ?? "";
+ $lname = $data['LASTNAME'] ?? "";
+ $no_people = $data['NUM_PEOPLE'] ?? "";
+ $no_child =$data['NUM_CHILDREN'] ?? "";
+ $address = $data['ADDRESS'] ?? "";
+ $city = $data['SUBURB'] ?? "";
+ $state = $data['STATE'] ?? "";
+ $country = $data['COUNTRY'] ?? "";
+ $zip = $data['POSTCODE'] ?? "";
+ $phone = $data['PHONE_MOBILE'] ?? "";
+ $email = $data['CLIENT_EMAIL'] ?? "";
+ $c_code = $data['COUNTRY_ISO3'] ?? "";
+ $p_code = $data['COUNTRY_NUMCODE'] ?? "";
  $villa_desc ="";
  
 $currency_code = "$";
@@ -396,7 +397,7 @@ $currency_code = "$";
                                                     <div class="villa-payment-block">
                                                         
                                                         Villa Gateways Will Recieve.<br>
-                                                        <strong><span data-amount="<?php echo $_COOKIE["booking_amount"];?>"><?php echo  $_COOKIE["csymbol"].' '.$_COOKIE["booking_amount"];?></span></strong>
+                                                        <strong><span data-amount="<?php echo ($_COOKIE["booking_amount"] ?? "");?>"><?php echo ($_COOKIE["csymbol"] ?? "").' '.($_COOKIE["booking_amount"] ?? "");?></span></strong>
                                                         
                                                         
                                                     </div>
@@ -406,7 +407,7 @@ $currency_code = "$";
                                                         
                                                         <span id="charge-label">Your card will be charged for</span> <br>
                                                         
-                                                       <strong> <?php echo  $_COOKIE["csymbol"]." ";?><span id="actual-amount">XXX</span></strong>
+                                                       <strong> <?php echo ($_COOKIE["csymbol"] ?? "")." ";?><span id="actual-amount">XXX</span></strong>
                                                         
                                                     </div>
                                                 </div>    
@@ -433,24 +434,24 @@ $currency_code = "$";
    $(document).ready(function() {
       
       
-        let amount = parseFloat('<?php echo $_COOKIE["booking_amount"]; ?>'.replace(/,/g, ''));
+        let amount = parseFloat('<?php echo ($_COOKIE["booking_amount"] ?? ""); ?>'.replace(/,/g, ''));
         $('#actual-amount').text(amount + (amount * 2) / 100);
         
         $(document).on('click','#pay-now',function(){
 
                         
-                        let fname = '<?php echo $_COOKIE["fname"];?>';
-                        let lname = '<?php echo $_COOKIE["lname"];?>';
-                        let email = '<?php echo $_COOKIE["email"];?>';
-                        let phone = '<?php echo $_COOKIE["phone"];?>';
-                        let address_line = '<?php echo $_COOKIE["address_line"];?>';
-                        let city = '<?php echo $_COOKIE["address_city"];?>';
-                        let state = '<?php echo $_COOKIE["address_state"];?>';
-                        let zipcode = '<?php echo $_COOKIE["address_postcode"];?>';
-                        let country = '<?php echo $_COOKIE["address_country"];?>';
-                        let country_code = '<?php echo $_COOKIE["address_country_code"];?>';
-                        let phone_code = '<?php echo $_COOKIE["phone_code"];?>';
-                        let booking_id = '<?php echo $_COOKIE["booking_id"];?>';
+                        let fname = '<?php echo ($_COOKIE["fname"] ?? "");?>';
+                        let lname = '<?php echo ($_COOKIE["lname"] ?? "");?>';
+                        let email = '<?php echo ($_COOKIE["email"] ?? "");?>';
+                        let phone = '<?php echo ($_COOKIE["phone"] ?? "");?>';
+                        let address_line = '<?php echo ($_COOKIE["address_line"] ?? "");?>';
+                        let city = '<?php echo ($_COOKIE["address_city"] ?? "");?>';
+                        let state = '<?php echo ($_COOKIE["address_state"] ?? "");?>';
+                        let zipcode = '<?php echo ($_COOKIE["address_postcode"] ?? "");?>';
+                        let country = '<?php echo ($_COOKIE["address_country"] ?? "");?>';
+                        let country_code = '<?php echo ($_COOKIE["address_country_code"] ?? "");?>';
+                        let phone_code = '<?php echo ($_COOKIE["phone_code"] ?? "");?>';
+                        let booking_id = '<?php echo ($_COOKIE["booking_id"] ?? "");?>';
                         let selectedMethod = $('input[name="payment_method"]:checked').val();
                         
                         
@@ -624,7 +625,7 @@ $currency_code = "$";
        $('input[name="payment_method"]').on('change', function() {
     var selectedValue = $(this).val();
 
-    let amount = parseFloat('<?php echo $_COOKIE["booking_amount"]; ?>'.replace(/,/g, ''));
+    let amount = parseFloat('<?php echo ($_COOKIE["booking_amount"] ?? ""); ?>'.replace(/,/g, ''));
 
     if (selectedValue == 'master_credit') {
         $('#actual-amount').text(amount + (amount * 2) / 100);
