@@ -35,48 +35,6 @@ if($footer_location_id) {
 <!-- Start Content -->
 <div class="container-fluid p-0">
 
-<!-- Start Welcome Banner -->
-<!--<div class="container-fluid mt-164 p-0">-->
-
-<!--    <div class="welcome-banner">-->
-<!--        <div class="owl-carousel welcome-slider owl-theme">-->
-<!--            <?php-->
-<!--            if( have_rows('testimonials', 'options') ):-->
-<!--                $index = 1;-->
-<!--                while( have_rows('testimonials', 'options') ) : the_row();-->
-<!--                    ?>-->
-<!--                    <div class="item">-->
-<!--                        <div class="item-caption-wrapper">-->
-<!--                            <div class="container">-->
-<!--                                <div class="item-caption">-->
-<!--                                    <div class="row align-items-center">-->
-<!--                                        <div class="col-12 col-sm-12 col-md-12">-->
-                                            
-<!--                                            <h2><?php echo get_sub_field('heading'); ?></h2>-->
-                                            
-<!--                                            <?php echo showRatingDiamonds(get_sub_field('rating_stars')); ?>-->
-                                            
-<!--                                            <h4><?php echo get_sub_field('title'); ?></h4>-->
-                                            
-<!--                                            <?php echo get_sub_field('content'); ?>-->
-                                            
-<!--                                            <span><?php echo get_sub_field('rating_by'); ?></span>-->
-<!--                                        </div>-->
-        
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <img src="<?php echo get_sub_field('image'); ?>" alt="<?php echo get_sub_field('heading'); ?>">-->
-<!--                    </div>-->
-<!--                    <?php-->
-<!--                    $index++;-->
-<!--                endwhile;-->
-<!--            endif;-->
-<!--            ?>-->
-<!--        </div>-->
-<!--    </div>-->
-
     <section class="destinations pt-0 pb-0">
         <div class="container">
             <div class="row">
@@ -382,7 +340,7 @@ if($footer_location_id) {
                                                     if($form_locations && count($form_locations) > 0) {
                                                     foreach($form_locations as $key=>$value) { 
                                                     ?>
-                                                        <option value="<?php echo $key; ?>" <?php echo $result=="OK" ? "" : $location_footer_id==$key ? "selected" : $footer_location_id == $key ? "selected" : ""; ?>><?php echo $value; ?></option>
+                                                        <option value="<?php echo $key; ?>" <?php echo $result=="OK" ? "" : ($location_footer_id==$key || $footer_location_id==$key ? "selected" : ""); ?>><?php echo $value; ?></option>
                                                     <?php    
                                                     } 
                                                 } ?>
@@ -763,7 +721,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["recommend-form-submit"] === 
                                 <?php 
                                 foreach($form_des as $key=>$value) { 
                                 ?>
-                                    <option value="<?php echo $key; ?>" <?php echo $result=="OK" ? "" : $destination_id==$key ? "selected" : $footer_destination_id == $key ? "selected" : ""; ?>><?php echo $value; ?></option>
+                                    <option value="<?php echo $key; ?>" <?php echo $result=="OK" ? "" : ($destination_id==$key || $footer_destination_id==$key ? "selected" : ""); ?>><?php echo $value; ?></option>
                                 <?php    
                                 }?>
                         </select>
@@ -775,7 +733,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["recommend-form-submit"] === 
                                 if($form_locations && count($form_locations) > 0) {
                                     foreach($form_locations as $key=>$value) { 
                                     ?>
-                                        <option value="<?php echo $key; ?>" <?php echo $result=="OK" ? "" : $location_footer_id==$key ? "selected" : $footer_location_id == $key ? "selected" : ""; ?>><?php echo $value; ?></option>
+                                        <option value="<?php echo $key; ?>" <?php echo $result=="OK" ? "" : ($location_footer_id==$key || $footer_location_id==$key ? "selected" : ""); ?>><?php echo $value; ?></option>
                                     <?php    
                                 } 
                             } ?>
@@ -1076,13 +1034,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["recommend-form-submit"] === 
             $unavailable_dates = fetchUnavailableDates($conn, $villa_details["VILLA_ID"]);
             if( $unavailable_dates ) {
                 foreach( $unavailable_dates AS $date ) {
+                    $arrive = strtotime($date["ARRIVE"] ?? '');
+                    $depart = strtotime($date["DEPART"] ?? '');
+                    if( !$arrive || !$depart ) {
+                        continue;
+                    }
                     $temp_event_dates = [
-                       
-                        "start" => date('Y-m-d', strtotime($date["ARRIVE"])),
-                        "end" => date('Y-m-d', strtotime($date["DEPART"])),
+
+                        "start" => date('Y-m-d', $arrive),
+                        "end" => date('Y-m-d', $depart),
                         "rendering" => "background",
                         "backgroundColor" => "#ef4d4d",
-                        
+
                     ];
                     $event_dates[] = $temp_event_dates;
                 }
@@ -1380,13 +1343,17 @@ foreach ($bookedDatesformatted as $entry) {
 //print_r($entry);
 
 
+        $arrival = strtotime($entry['ARRIVAL'] ?? '');
+        if( !$arrival ) {
+            continue;
+        }
         $temp_event_dates = [
-                       
-                        "start" => date('Y-m-d', strtotime($entry['ARRIVAL'])),
-                        "end" => date('Y-m-d', strtotime($entry['ARRIVAL'])),
+
+                        "start" => date('Y-m-d', $arrival),
+                        "end" => date('Y-m-d', $arrival),
                         "classNames" => "booked",
                         //"backgroundColor" => "#ef4d4d",
-                        
+
                     ];
 
                     

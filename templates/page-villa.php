@@ -60,10 +60,10 @@ if(!empty($vg_number)) {
 
 function formatDate($dateStr) {
     // Create a DateTime object from the original format
-    $date = DateTime::createFromFormat('d-M-y', $dateStr);
-    
-    // Return the date in the desired format
-    return $date->format('Y-m-d');
+    $date = DateTime::createFromFormat('d-M-y', $dateStr ?? '');
+
+    // Unparseable or null input yields false; caller treats '' as "no date".
+    return $date ? $date->format('Y-m-d') : '';
 }
 //echo "<pre>";
 //print_r($bookedDates);
@@ -111,8 +111,8 @@ foreach ($bookedDatesformatted as $entry) {
             }    
         }
         
-        $country_name = strtolower(str_replace(" ", "-", $villa_details["DESTINATION_NAME"]));
-        $location_name = strtolower(str_replace(" ", "-", $villa_details['LOCATION_NAME']));
+        $country_name = strtolower(str_replace(" ", "-", $villa_details["DESTINATION_NAME"] ?? ''));
+        $location_name = strtolower(str_replace(" ", "-", $villa_details['LOCATION_NAME'] ?? ''));
         $event_dates = [];
         $unavailable_dates = fetchUnavailableDates($conn, $villa_details["VILLA_ID"]);
         if( $unavailable_dates ) {

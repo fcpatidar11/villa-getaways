@@ -4,8 +4,8 @@ $conn = oracleDbConnection();
 $similar_villas = fetchSimilarLaxuryVillas($conn, $args["villa_details"]["DESTINATION_ID"], $args["villa_details"]["VILLA_ID"],$args["villa_details"]['BEDS']);
 if($similar_villas) {
     foreach($similar_villas AS $similar_villa) {
-        $destination_name = strtolower(str_replace(" ", "-", $similar_villa['DESTINATION_NAME']));
-        $location_name = strtolower(str_replace(" ", "-", $similar_villa['LOCATION_NAME']));
+        $destination_name = strtolower(str_replace(" ", "-", $similar_villa['DESTINATION_NAME'] ?? ''));
+        $location_name = strtolower(str_replace(" ", "-", $similar_villa['LOCATION_NAME'] ?? ''));
         $slug = "villa-rentals-" . $location_name . "-" . $similar_villa["VG_NUMBER"];
         ?>
         <div class="col-lg-4 col-md-12" style="padding-right: 15px;padding-left: 15px;">

@@ -243,6 +243,7 @@ if (!function_exists("destination_location")) {
     function destination_location() {
         $conn = oracleDbConnection();
         $no_regions = false;
+        $html = '';
         if( isset($_REQUEST["type"]) && $_REQUEST["type"] && $_REQUEST["type"] == 'destination' ) {
             $locations = fetchDestinationLocations($conn, $_REQUEST["destination_id"]);
             $regions = fetchRegions($conn, $_REQUEST["destination_id"]);
@@ -307,7 +308,8 @@ if (!function_exists("fetch_rates_of_single_villa")) {
             
             $date1 = DateTime::createFromFormat('d-m-Y', $_REQUEST["dest_checkIn"]);
             $date2 = DateTime::createFromFormat('d-m-Y', $_REQUEST["dest_checkOut"]);
-            $diff = $date1->diff($date2)->format('%a');
+            // Malformed dates yield false; treat as a single night rather than fatalling.
+            $diff = ( $date1 && $date2 ) ? $date1->diff($date2)->format('%a') : 1;
             
             $rates = fetchRatesOfSingleVilla($conn, $_REQUEST["id"], date("d/m/Y", strtotime($_REQUEST["dest_checkIn"])), date("d/m/Y", strtotime($_REQUEST["dest_checkOut"])), $_REQUEST["bedrooms"]);
             $total = number_format((float)(( $rates + ($rates*$percentage)/100 )*$diff), 2, '.', '');
@@ -415,8 +417,8 @@ if (!function_exists("villa_booking_details")) {
         $address_country = $_REQUEST["address_country"];
         $address_postcode = $_REQUEST["address_postcode"];
         $email = $_REQUEST["email"];
-        $villaId = number_format($_REQUEST["villaId"]);
-        $amount = number_format($_REQUEST["amount"]);
+        $villaId = (int) ($_REQUEST["villaId"] ?? 0);
+        $amount = number_format((float) str_replace(',', '', $_REQUEST["amount"] ?? 0));
         $mobile = $_REQUEST["mobile_num"] ;
         $suburb = $_REQUEST["suburb"];
         $night = $_REQUEST["night"];
@@ -466,17 +468,16 @@ if (!function_exists("villa_booking_details")) {
         
        
        
-        $p_full_payment;
-        $p_payment_method;
+        $p_full_payment = 0;
+        $p_payment_method = "wt";
         $format = 'd-m-Y'; // Date format
-        $format = 'd-m-Y'; // Date format
-        $date = DateTime::createFromFormat($format, $arrivalDate);
+        $date = DateTime::createFromFormat($format, $arrivalDate ?? '');
         $today = new DateTime();
-        $interval = $today->diff($date);
-        if ($interval->days <= 30 && $date > $today) {
-           $p_full_payment = 1;
-        } else {
-            $p_full_payment = 0;
+        if ($date) {
+            $interval = $today->diff($date);
+            if ($interval->days <= 30 && $date > $today) {
+               $p_full_payment = 1;
+            }
         }
         if ($paymentMethod == "master_credit") {
            $p_payment_method = "cc";

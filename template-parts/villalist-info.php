@@ -13,7 +13,8 @@ $start = ( isset($_REQUEST['date_start']) && $_REQUEST['date_start'] ) ? $_REQUE
 $end = ( isset($_REQUEST['date_end']) && $_REQUEST['date_end'] ) ? $_REQUEST['date_end'] : date('d-m-Y', strtotime("+1 day"));
 $date1 = DateTime::createFromFormat('d-m-Y', $start);
 $date2 = DateTime::createFromFormat('d-m-Y', $end);
-$diff = $date1->diff($date2)->format('%a');
+// Bad dates in the query string yield false; fall back to the 1-night default above.
+$diff = ( $date1 && $date2 ) ? $date1->diff($date2)->format('%a') : 1;
 
 $bedrooms = ( isset($_REQUEST['bedrooms']) && $_REQUEST['bedrooms'] ) ? $_REQUEST['bedrooms'] : 1;
 $page = ( isset($_REQUEST['page']) && $_REQUEST['page'] ) ? $_REQUEST['page'] : 1;

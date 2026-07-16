@@ -8,10 +8,10 @@ if (isset($_GET)) {
 
 function formatDate($dateStr) {
     // Create a DateTime object from the original format
-    $date = DateTime::createFromFormat('d-M-y', $dateStr);
-    
-    // Return the date in the desired format
-    return $date->format('Y-m-d');
+    $date = DateTime::createFromFormat('d-M-y', $dateStr ?? '');
+
+    // Unparseable or null input yields false; caller treats '' as "no date".
+    return $date ? $date->format('Y-m-d') : '';
 }
 
 $arrivalDate = $_GET['arrivalDate'];

@@ -35,7 +35,7 @@ if(sizeof($all_destinations)) {
 			
 			
 			foreach ($destinations as $destination) {
-			    $country_name = strtolower(str_replace(" ", "-", $destination['COUNTRY']));
+			    $country_name = strtolower(str_replace(" ", "-", $destination['COUNTRY'] ?? ''));
 			    $destination_id = $destination['DESTINATION_ID'];
     			?>
     		    <ul class="multi-column-dropdown">
@@ -51,7 +51,7 @@ if(sizeof($all_destinations)) {
 			            
 			            if(sizeof($locations)) {
 			                foreach ($locations as $location_id => $location) {
-			                   $location_name = strtolower(str_replace(" ", "-", $location['LOCATION_NAME']));
+			                   $location_name = strtolower(str_replace(" ", "-", $location['LOCATION_NAME'] ?? ''));
 			                   //$location_name = strtolower($location["LOCATION_URL_NAME"]);
 			                 //   $location_name = strtolower(str_replace(" ", "-", $location['LOCATION_URL_NAME']));
     	    		            ?>

@@ -340,8 +340,8 @@ if(!empty($matches)) {
     
     
     if(isset($_REQUEST['destination_id']) && $_REQUEST['destination_id'] 
-        && isset($_REQUEST['location_id']) && $_REQUEST['location_id'] && count(_REQUEST['location_id'])>0 
-        && isset($_REQUEST['region_id']) && $_REQUEST['region_id'] && count($_REQUEST['region_id'])>0){
+        && isset($_REQUEST['location_id']) && is_array($_REQUEST['location_id']) && count($_REQUEST['location_id'])>0 
+        && isset($_REQUEST['region_id']) && is_array($_REQUEST['region_id']) && count($_REQUEST['region_id'])>0){
         
         $location_first = $_REQUEST['location_id'][0];
         $region_first = $_REQUEST['region_id'][0];
@@ -361,7 +361,7 @@ if(!empty($matches)) {
     <?php
         }
     }elseif(isset($_REQUEST['destination_id']) && $_REQUEST['destination_id'] 
-            && isset($_REQUEST['location_id']) && $_REQUEST['location_id'] && count(_REQUEST['location_id'])>0){
+            && isset($_REQUEST['location_id']) && is_array($_REQUEST['location_id']) && count($_REQUEST['location_id'])>0){
         
         $location_first = $_REQUEST['location_id'][0];
         $meta_data = fetchMetaDataForLocation($conn, $_REQUEST['destination_id'], $location_first);
