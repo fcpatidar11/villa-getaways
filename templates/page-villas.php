@@ -313,7 +313,7 @@ if( $request_region_ids ) {
 }elseif( $request_location_ids ) {
     $desTitle = fetchLocationTitle($conn, $request_location_ids[0]);
 }else{
-    if($regin_id) {
+    if(!empty($regin_id)) {
         $desTitle = fetchRegionTitle($conn, $regin_id);
         
     }elseif($location_id) {
@@ -333,7 +333,7 @@ if( $request_region_ids ) {
 ?>
 <?php $title = $heading ? $heading : ( $location_name ? $location_name : $destination_name );    
 
-$region_heading_breadcrum = strtolower(str_replace([" "], "-", $region_heading));
+$region_heading_breadcrum = strtolower(str_replace([" "], "-", $region_heading ?? ""));
 //$region_heading_breadcrum = strtolower($region_heading);
 ?>
 <div class="dest-info-bar">
@@ -360,7 +360,7 @@ $region_heading_breadcrum = strtolower(str_replace([" "], "-", $region_heading))
             </nav>
         </div>
         <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-            <h4 class="page-title">DESTINATION <?php echo strtoupper($villa_details["DESTINATION_NAME"]); ?></h4>
+            <h4 class="page-title">DESTINATION <?php echo strtoupper($villa_details["DESTINATION_NAME"] ?? ""); ?></h4>
         </div>
         <div class="col-lg-4 col-md-6 next-villa col-sm-12 col-xs-12">
             <!--<a href="#">NEXT VILLA <img src="<?php echo get_template_directory_uri(); ?>/assets/images/icon-arrow-right.png" alt="Next Villa"></a>-->
@@ -480,11 +480,11 @@ $region_heading_breadcrum = strtolower(str_replace([" "], "-", $region_heading))
                                     $location_name = strtolower(str_replace(" ", "-", $location));
                                     $location_name = strtolower(str_replace([" ", "/"], "-", $location));
 
-                                    $locationLowerCaseNew = strtolower(str_replace(" ", "-", $locationLowerCase));
+                                    $locationLowerCaseNew = strtolower(str_replace(" ", "-", $locationLowerCase ?? ""));
                                     $locationLowerCase = strtolower(str_replace("-", " ", $location_name));
                                     $titleLowerCase = strtolower($title);
                                     $new_location_name = strtolower($new_location_name);
-                                    $url_location_name = strtolower(str_replace("-", " ", $location_url_name));
+                                    $url_location_name = strtolower(str_replace("-", " ", $location_url_name ?? ""));
                                 // href="<?php echo home_url('destination/villa-rentals-' . ($destination_name ? $destination_name: $country_name) . '-in-' . $location_name);
                                 ?>
                                 <div class="filterRegions">

@@ -168,23 +168,23 @@ if ( ! function_exists( 'fetchVillasFromVillaList' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                 "VILLA_LIST_ID" => $row["VILLA_LIST_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "DESTINATION_NAME" => $row["DESTINATION_NAME"],
-                "LOCATION_NAME" => $row["LOCATION_NAME"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"],
-                "AGENT_ID" => $row["AGENT_ID"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                 "VILLA_LIST_ID" => $row["VILLA_LIST_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "DESTINATION_NAME" => $row["DESTINATION_NAME"] ?? null,
+                "LOCATION_NAME" => $row["LOCATION_NAME"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null,
+                "AGENT_ID" => $row["AGENT_ID"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -384,8 +384,8 @@ if ( ! function_exists( 'fetchLocationsAndCount' ) ) {
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp_location = [];
             $temp_location = [
-                "LOCATION_NAME" => $row["LOCATION_NAME"],
-                "TOTAL" => $row["TOTAL"],
+                "LOCATION_NAME" => $row["LOCATION_NAME"] ?? null,
+                "TOTAL" => $row["TOTAL"] ?? null,
             ];
             $locations[$row["LOCATION_NAME"]] = $temp_location;
             
@@ -446,9 +446,9 @@ if ( ! function_exists( 'fetchDestinationWithLocationsAndRegions' ) ) {
             if( isset($row["LOCATION_NAME"]) && $row["LOCATION_NAME"] ) {
                 $temp_location = [];
                 $temp_location = [
-                    "LOCATION_NAME" => $row["LOCATION_NAME"],
-                    "REGION_NAME" => $row["REGION_NAME"],
-                    "TOTAL" => $row["TOTAL"],
+                    "LOCATION_NAME" => $row["LOCATION_NAME"] ?? null,
+                    "REGION_NAME" => $row["REGION_NAME"] ?? null,
+                    "TOTAL" => $row["TOTAL"] ?? null,
                 ];
                 $locations[$row["LOCATION_NAME"]][] = $temp_location;
             }
@@ -538,18 +538,18 @@ if ( ! function_exists( 'fetchDestinationsForMenu' ) ) {
             if( isset($row["LOCATION_NAME"]) && $row["LOCATION_NAME"] ) {
                 $temp_location = [];
                 $temp_location = [
-                    "LOCATION_NAME" => $row["LOCATION_NAME"],
-                    "LOCATION_URL_NAME" => $row["LOCATION_URL_NAME"],
-                    "COUNTED" => $row["COUNTED"],
-                    "DESTINATION_NAME" => $row["DESTINATION_NAME"],
-                    "DESTINATION_ID" => $row["DESTINATION_ID"]
+                    "LOCATION_NAME" => $row["LOCATION_NAME"] ?? null,
+                    "LOCATION_URL_NAME" => $row["LOCATION_URL_NAME"] ?? null,
+                    "COUNTED" => $row["COUNTED"] ?? null,
+                    "DESTINATION_NAME" => $row["DESTINATION_NAME"] ?? null,
+                    "DESTINATION_ID" => $row["DESTINATION_ID"] ?? null
                 ];
                 $destinations[$row["DESTINATION_ID"]]["LOCATIONS"][] = $temp_location;
             } else {
                 $temp_destination = [
-                    "COUNTRY" => $row["DESTINATION_NAME"],
-                    "DESTINATION_ID" => $row["DESTINATION_ID"],
-                    "COUNTED" => $row["COUNTED"],
+                    "COUNTRY" => $row["DESTINATION_NAME"] ?? null,
+                    "DESTINATION_ID" => $row["DESTINATION_ID"] ?? null,
+                    "COUNTED" => $row["COUNTED"] ?? null,
                     "LOCATIONS" => []
                 ];
                 $destinations[$row["DESTINATION_ID"]] = $temp_destination;
@@ -600,18 +600,18 @@ if ( ! function_exists( 'fetchVillasByDestination' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -621,7 +621,7 @@ if ( ! function_exists( 'fetchVillasByDestination' ) ) {
 
 // Search Villas
 if ( ! function_exists( 'searchVillas' ) ) {
-    function searchVillas($conn, $destination_id, $location_ids, $region_ids, $date_from, $date_to, $no_of_bedrooms, $page = 1, $price) {
+    function searchVillas($conn, $destination_id, $location_ids, $region_ids, $date_from, $date_to, $no_of_bedrooms, $page = 1, $price = "") {
         
         $no_of_bedrooms = $no_of_bedrooms ? $no_of_bedrooms : 1;
         if($page == 1) {
@@ -791,24 +791,24 @@ if ( ! function_exists( 'searchVillas' ) ) {
             
            
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "DESTINATION_NAME" => $row["DESTINATION_NAME"],
-                "DESTINATION_ID" => $row["DESTINATION_ID"],
-                "LOCATION_NAME"  => $row["LOCATION_NAME"],
-                "IS_PRIORITY"  => $row["IS_PRIORITY"],
-                "AGENT_ID"  => $row["AGENT_ID"],
-                "AVAILABILITY"=>$row["AVAILABILITY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "DESTINATION_NAME" => $row["DESTINATION_NAME"] ?? null,
+                "DESTINATION_ID" => $row["DESTINATION_ID"] ?? null,
+                "LOCATION_NAME"  => $row["LOCATION_NAME"] ?? null,
+                "IS_PRIORITY"  => $row["IS_PRIORITY"] ?? null,
+                "AGENT_ID"  => $row["AGENT_ID"] ?? null,
+                "AVAILABILITY"=>$row["AVAILABILITY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -820,7 +820,7 @@ if ( ! function_exists( 'searchVillas' ) ) {
 
 // Search Villas
 if ( ! function_exists( 'searchVillalistVillas' ) ) {
-    function searchVillalistVillas($conn, $destination_id, $location_ids, $region_ids, $date_from, $date_to, $no_of_bedrooms, $page = 1, $price) {
+    function searchVillalistVillas($conn, $destination_id, $location_ids, $region_ids, $date_from, $date_to, $no_of_bedrooms, $page = 1, $price = "") {
         
         $no_of_bedrooms = $no_of_bedrooms ? $no_of_bedrooms : 1;
         if($page == 1) {
@@ -911,23 +911,23 @@ if ( ! function_exists( 'searchVillalistVillas' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "DESTINATION_NAME" => $row["DESTINATION_NAME"],
-                "DESTINATION_ID" => $row["DESTINATION_ID"],
-                "LOCATION_NAME"  => $row["LOCATION_NAME"],
-                "IS_PRIORITY"  => $row["IS_PRIORITY"],
-                "AGENT_ID"  => $row["AGENT_ID"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "DESTINATION_NAME" => $row["DESTINATION_NAME"] ?? null,
+                "DESTINATION_ID" => $row["DESTINATION_ID"] ?? null,
+                "LOCATION_NAME"  => $row["LOCATION_NAME"] ?? null,
+                "IS_PRIORITY"  => $row["IS_PRIORITY"] ?? null,
+                "AGENT_ID"  => $row["AGENT_ID"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -1428,22 +1428,22 @@ if( !function_exists( 'fetchVillasByDestinationName' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "LOCATION_NAME" => $row["LOCATION_NAME"],
-                "DESTINATION_NAME" => $row["DESTINATION_NAME"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"],
-                "AGENT_ID" => $row["AGENT_ID"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "LOCATION_NAME" => $row["LOCATION_NAME"] ?? null,
+                "DESTINATION_NAME" => $row["DESTINATION_NAME"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null,
+                "AGENT_ID" => $row["AGENT_ID"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -1503,22 +1503,22 @@ if( !function_exists( 'fetchVillasByLocationName' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "DESTINATION_NAME" => $row["DESTINATION_NAME"],
-                "LOCATION_NAME" => $row["LOCATION_NAME"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"],
-                "AGENT_ID" => $row["AGENT_ID"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "DESTINATION_NAME" => $row["DESTINATION_NAME"] ?? null,
+                "LOCATION_NAME" => $row["LOCATION_NAME"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null,
+                "AGENT_ID" => $row["AGENT_ID"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -1528,7 +1528,7 @@ if( !function_exists( 'fetchVillasByLocationName' ) ) {
 
 // // Fetch Absolute Villas
 if ( ! function_exists( 'fetchAbsoluteBeachFrontVillas' ) ) {
-    function fetchAbsoluteBeachFrontVillas($conn, $page = 1, $price, $destination="", $location="") {
+    function fetchAbsoluteBeachFrontVillas($conn, $page = 1, $price = "", $destination="", $location="") {
         
         if($page == 1) {
             $page = 0;
@@ -1619,19 +1619,19 @@ if ( ! function_exists( 'fetchAbsoluteBeachFrontVillas' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -1641,7 +1641,7 @@ if ( ! function_exists( 'fetchAbsoluteBeachFrontVillas' ) ) {
 
 // // Fetch Wedding Villas
 if ( ! function_exists( 'fetchWeddingVillas' ) ) {
-    function fetchWeddingVillas($conn, $page = 1, $price, $destination="", $location="") {
+    function fetchWeddingVillas($conn, $page = 1, $price = "", $destination="", $location="") {
         if($page == 1) {
             $page = 0;
         }else {
@@ -1730,19 +1730,19 @@ if ( ! function_exists( 'fetchWeddingVillas' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -1752,7 +1752,7 @@ if ( ! function_exists( 'fetchWeddingVillas' ) ) {
 
 // // Fetch Holiday Season Villas
 if ( ! function_exists( 'fetchHollidaySeasonVillas' ) ) {
-    function fetchHollidaySeasonVillas($conn, $page = 1, $price, $destination="", $location="") {
+    function fetchHollidaySeasonVillas($conn, $page = 1, $price = "", $destination="", $location="") {
         if($page == 1) {
             $page = 0;
         }else {
@@ -1840,19 +1840,19 @@ if ( ! function_exists( 'fetchHollidaySeasonVillas' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -1862,7 +1862,7 @@ if ( ! function_exists( 'fetchHollidaySeasonVillas' ) ) {
 
 // // Fetch Corporate Retrat Villas
 if ( ! function_exists( 'fetchCorporateRetreatsVillas' ) ) {
-    function fetchCorporateRetreatsVillas($conn, $page = 1, $price, $destination="", $location="") {
+    function fetchCorporateRetreatsVillas($conn, $page = 1, $price = "", $destination="", $location="") {
         if($page == 1) {
             $page = 0;
         }else {
@@ -1949,19 +1949,19 @@ if ( ! function_exists( 'fetchCorporateRetreatsVillas' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -1971,7 +1971,7 @@ if ( ! function_exists( 'fetchCorporateRetreatsVillas' ) ) {
 
 // // Fetch Exclusive Villas
 if ( ! function_exists( 'fetchExclusiveVillas' ) ) {
-    function fetchExclusiveVillas($conn, $page = 1, $price, $destination="", $location="") {
+    function fetchExclusiveVillas($conn, $page = 1, $price = "", $destination="", $location="") {
         if($page == 1) {
             $page = 0;
         }else {
@@ -2062,19 +2062,19 @@ if ( ! function_exists( 'fetchExclusiveVillas' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -2295,19 +2295,19 @@ if ( ! function_exists( 'fetchVillasByPriceFilter' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "VILLA_ID" => $row["VILLA_ID"],
-                "VILLA_NAME" => $row["VILLA_NAME"],
-                "VG_NUMBER" => $row["VG_NUMBER"],
-                "BEDS" => $row["BEDS"],
-                "BATHS" => $row["BATHS"],
-                "SLEEPS" => $row["SLEEPS"],
-                "LOCATION" => $row["LOCATION"],
-                "IMAGE" => $row["IMAGE"],
-                "PRICE" => $row["PRICE"],
-                "OFFER_TEXT" => $row["OFFER_TEXT"],
-                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"],
-                "CURRENCY" => $row["CURRENCY"],
-                "IS_PRIORITY" => $row["IS_PRIORITY"]
+                "VILLA_ID" => $row["VILLA_ID"] ?? null,
+                "VILLA_NAME" => $row["VILLA_NAME"] ?? null,
+                "VG_NUMBER" => $row["VG_NUMBER"] ?? null,
+                "BEDS" => $row["BEDS"] ?? null,
+                "BATHS" => $row["BATHS"] ?? null,
+                "SLEEPS" => $row["SLEEPS"] ?? null,
+                "LOCATION" => $row["LOCATION"] ?? null,
+                "IMAGE" => $row["IMAGE"] ?? null,
+                "PRICE" => $row["PRICE"] ?? null,
+                "OFFER_TEXT" => $row["OFFER_TEXT"] ?? null,
+                "TAX_PERCENTAGE" => $row["TAX_PERCENTAGE"] ?? null,
+                "CURRENCY" => $row["CURRENCY"] ?? null,
+                "IS_PRIORITY" => $row["IS_PRIORITY"] ?? null
             ];
             $villas[] = $temp;
         }
@@ -2455,7 +2455,7 @@ if ( ! function_exists( 'insertClientData' ) ) {
 
 
 if ( ! function_exists( 'insertRefferals' ) ) {
-    function insertRefferals($conn, $refferals = [], $client_id) { 
+    function insertRefferals($conn, $refferals = [], $client_id = "") {
         
         
         // Prepare the SQL query with placeholders for each row of data
@@ -2528,8 +2528,8 @@ if ( ! function_exists( 'getCountryId' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $temp = [
-                "COUNTRY_ID" => $row["COUNTRY_ID"],
-                "COUNTRY_NAME" => $row["COUNTRY_NAME"],
+                "COUNTRY_ID" => $row["COUNTRY_ID"] ?? null,
+                "COUNTRY_NAME" => $row["COUNTRY_NAME"] ?? null,
             ];
             $countries[] = $temp;
         }
@@ -2813,7 +2813,7 @@ if ( ! function_exists( 'fetchVillaVideos' ) ) {
             $e = oci_error($stid);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
         }
-        $villa_floor_plans = [];
+        $villa_videoes = [];
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $villa_videoes[] = $row["HTTP_CODE"];
