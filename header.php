@@ -303,11 +303,37 @@ $vg_number = !empty($matches) ? (int) $matches[0] : 0;
         <meta name="mssmarttagspreventparsing" content="true" />
         <title>Villa Holidays &amp; Luxury Vacation Home Rentals - Villa Getaways</title>
         <?php
+    } elseif ( is_single() ) { ?>
+        <meta name="description" content="<?php echo get_the_title(); ?>" />
+        <meta name="block" content="false" />
+        <meta name="copyright" content="Villa Getaways Ltd" />
+        <meta name="email" content="webmaster@villagetaways.net" />
+        <meta name="author" content="VillaGetaways.com" />
+        <meta name="language" content="en" />
+        <meta name="mssmarttagspreventparsing" content="true" />
+        <title><?php echo get_the_title(); ?> - Villa Getaways</title>
+        <?php
+    } elseif ( is_home() || is_archive() ) { ?>
+        <meta name="description" content="Blogs - Villa Getaways" />
+        <meta name="block" content="false" />
+        <meta name="copyright" content="Villa Getaways Ltd" />
+        <meta name="email" content="webmaster@villagetaways.net" />
+        <meta name="author" content="VillaGetaways.com" />
+        <meta name="language" content="en" />
+        <meta name="mssmarttagspreventparsing" content="true" />
+        <title>Blogs - Villa Getaways</title>
+        <?php
+    } elseif ( is_search() ) { ?>
+        <meta name="description" content="Search Results - Villa Getaways" />
+        <meta name="block" content="false" />
+        <meta name="copyright" content="Villa Getaways Ltd" />
+        <meta name="email" content="webmaster@villagetaways.net" />
+        <meta name="author" content="VillaGetaways.com" />
+        <meta name="language" content="en" />
+        <meta name="mssmarttagspreventparsing" content="true" />
+        <title>Search Results - Villa Getaways</title>
+    <?php
     }
-    
-    
-  
-    
     ?>
     
     <?php 

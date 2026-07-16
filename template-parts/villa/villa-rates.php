@@ -1,11 +1,13 @@
-<?php 
+<?php
 $conn = oracleDbConnection();
-$villa_rates_headers = fetchVillaRatesHeaders($conn, ($args["villa_details"]["VILLA_ID"] ?? ""));
+$villa_id = $args["villa_details"]["VILLA_ID"] ?? "";
+if( empty($villa_id) ) { return; }
+$villa_rates_headers = fetchVillaRatesHeaders($conn, $villa_id);
 
 if( $villa_rates_headers ) {
     $i=1;
     foreach($villa_rates_headers AS $villa_rates_header) {
-        $villa_rates_data = fetchVillaRatesData($conn, ($args["villa_details"]["VILLA_ID"] ?? ""), $villa_rates_header["NR_OF_ROOMS"]);
+        $villa_rates_data = fetchVillaRatesData($conn, $villa_id, $villa_rates_header["NR_OF_ROOMS"]);
         
         ?>
         <div class="col-lg-12">

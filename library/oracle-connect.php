@@ -1,5 +1,24 @@
 <?php
 
+// Sanitize a single numeric id for safe inline use in SQL.
+// Empty/non-numeric becomes the SQL literal NULL, so "= " . vg_int($x) stays
+// valid syntax (no ORA-00936) and returns no rows instead of matching anything.
+if ( ! function_exists( 'vg_int' ) ) {
+    function vg_int($v) {
+        return ( isset($v) && $v !== '' && is_numeric($v) ) ? (string) (int) $v : 'NULL';
+    }
+}
+
+// Sanitize a comma-separated list of numeric ids for a SQL IN(...) clause.
+// Keeps only positive integers; empty result becomes NULL so IN(NULL) is valid
+// and matches nothing. Both guards block SQL injection from request values.
+if ( ! function_exists( 'vg_int_list' ) ) {
+    function vg_int_list($csv) {
+        $ids = array_filter(array_map('intval', explode(',', (string) $csv)), function($n) { return $n > 0; });
+        return $ids ? implode(',', $ids) : 'NULL';
+    }
+}
+
 // Establish Oracle DB Connection
 if ( ! function_exists( 'oracleDbConnection' ) ) {
     function oracleDbConnection() {
@@ -124,7 +143,7 @@ if ( ! function_exists( 'fetchVillasFromVillaList' ) ) {
         // $query .= " , currency  ";
         // $query .= " , 2 orderno ";
         $query .= " from villa_list_villas_vw v  ";
-        $query .= "where villa_list_id = ".$villa_list_id; 
+        $query .= "where villa_list_id = ".vg_int($villa_list_id);
         $query .= " offset ". $page ." rows ";
         $query .= " fetch next 20 rows only ";
         
@@ -178,7 +197,7 @@ if ( ! function_exists( 'fetchDestinationTitle' ) ) {
     function fetchDestinationTitle($conn, $destination_id) {
 
         // Prepare the statement
-        $query = "select nvl(title, name||' Villas') as title,description,content_1,content_bg_colour_1,content_2,content_bg_colour_2,content_3,content_bg_colour_3,content_4,content_bg_colour_4 from destination where destination_id = ".$destination_id;
+        $query = "select nvl(title, name||' Villas') as title,description,content_1,content_bg_colour_1,content_2,content_bg_colour_2,content_3,content_bg_colour_3,content_4,content_bg_colour_4 from destination where destination_id = ".vg_int($destination_id);
         $stid = oci_parse( $conn, $query );
         if (!$stid) {
             $e = oci_error($conn);
@@ -222,7 +241,7 @@ if ( ! function_exists( 'fetchDestinationTitle' ) ) {
 if ( ! function_exists( 'fetchLocationTitle' ) ) {
     function fetchLocationTitle($conn, $location_id) {
         // Prepare the statement
-        $query = "select nvl(title, name||' Villas') as title ,description,content_1,content_bg_colour_1,content_2,content_bg_colour_2,content_3,content_bg_colour_3,content_4,content_bg_colour_4 from location where location_id = ".$location_id;
+        $query = "select nvl(title, name||' Villas') as title ,description,content_1,content_bg_colour_1,content_2,content_bg_colour_2,content_3,content_bg_colour_3,content_4,content_bg_colour_4 from location where location_id = ".vg_int($location_id);
         $stid = oci_parse( $conn, $query );
         if (!$stid) {
             $e = oci_error($conn);
@@ -264,7 +283,7 @@ if ( ! function_exists( 'fetchLocationTitle' ) ) {
 if ( ! function_exists( 'fetchRegionTitle' ) ) {
     function fetchRegionTitle($conn, $region_id) {
         // Prepare the statement
-        $query = "select nvl(title, name||' Villas') as title,description from region where region_id = ".$region_id;
+        $query = "select nvl(title, name||' Villas') as title,description from region where region_id = ".vg_int($region_id);
         $stid = oci_parse( $conn, $query );
         
         if (!$stid) {
@@ -295,7 +314,7 @@ if ( ! function_exists( 'fetchRegionTitle' ) ) {
 if ( ! function_exists( 'fetchDestinationName' ) ) {
     function fetchDestinationName($conn, $destination_id) {
         // Prepare the statement
-        $stid = oci_parse($conn, 'SELECT name FROM destination where destination_id = '.$destination_id );
+        $stid = oci_parse($conn, 'SELECT name FROM destination where destination_id = '.vg_int($destination_id) );
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -321,7 +340,7 @@ if ( ! function_exists( 'fetchDestinationName' ) ) {
 if ( ! function_exists( 'fetchDestinationLocations' ) ) {
     function fetchDestinationLocations($conn, $destination_id) {
         // Prepare the statement
-        $stid = oci_parse($conn, 'SELECT name, location_id FROM location WHERE destination_id = ' . $destination_id);
+        $stid = oci_parse($conn, 'SELECT name, location_id FROM location WHERE destination_id = ' . vg_int($destination_id));
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -347,7 +366,7 @@ if ( ! function_exists( 'fetchDestinationLocations' ) ) {
 if ( ! function_exists( 'fetchLocationsAndCount' ) ) {
     function fetchLocationsAndCount($conn, $destination_id) {
         // Prepare the statement
-        $stid = oci_parse($conn, 'select * from ( select location_name, count(*) total from villa_location_vw where destination_id='.$destination_id.' group by location_name) order by location_name');
+        $stid = oci_parse($conn, 'select * from ( select location_name, count(*) total from villa_location_vw where destination_id='.vg_int($destination_id).' group by location_name) order by location_name');
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -379,7 +398,7 @@ if ( ! function_exists( 'fetchLocationsAndCount' ) ) {
 if ( ! function_exists( 'fetchRegions' ) ) {
     function fetchRegions($conn, $destination_id) {
         // Prepare the statement
-        $stid = oci_parse($conn, 'select region_id, region_name from destination_locations_vw where destination_id ='.$destination_id);
+        $stid = oci_parse($conn, 'select region_id, region_name from destination_locations_vw where destination_id ='.vg_int($destination_id));
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -406,7 +425,7 @@ if ( ! function_exists( 'fetchDestinationWithLocationsAndRegions' ) ) {
     function fetchDestinationWithLocationsAndRegions($conn, $destination_id) {
         // Prepare the statement
         $stid = oci_parse($conn, 'select * from ( select location_name, nvl(region_name, location_name) region_name,count(*) total
-                from villa_location_vw where destination_id='.$destination_id.' group by location_name, nvl(region_name, location_name)) order by location_name, region_name');
+                from villa_location_vw where destination_id='.vg_int($destination_id).' group by location_name, nvl(region_name, location_name)) order by location_name, region_name');
                 
         if (!$stid) {
             $e = oci_error($conn);
@@ -442,7 +461,7 @@ if ( ! function_exists( 'fetchDestinationWithLocationsAndRegions' ) ) {
 if ( ! function_exists( 'fetchTotalCountOfLocations' ) ) {
     function fetchTotalCountOfLocations($conn, $destination_id) {
         // Prepare the statement
-        $stid = oci_parse($conn, 'select count(*) from villa_location_vw where destination_id='.$destination_id.' and region_name is not null');
+        $stid = oci_parse($conn, 'select count(*) from villa_location_vw where destination_id='.vg_int($destination_id).' and region_name is not null');
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -553,15 +572,15 @@ if ( ! function_exists( 'fetchVillasByDestination' ) ) {
         $query .= ", sleeps ";
         $query .= ", location_name || case when region_name is not null then ', ' || region_name else null end as location ";
         $query .= ", image ";
-        $query .= ", villa_functions.calculate_price( v.villa_id , to_date('" . $date_from . "','dd/mm/yyyy'), to_date('" . $date_to . "','dd/mm/yyyy'), " . $no_of_bedrooms . " ) AS price ";
-        $query .= ", villa_functions.offer_text( v.villa_id , to_date('" . $date_from . "','dd/mm/yyyy'), to_date('" . $date_to . "','dd/mm/yyyy'), " . $no_of_bedrooms . " ) AS offer_text ";
+        $query .= ", villa_functions.calculate_price( v.villa_id , to_date('" . $date_from . "','dd/mm/yyyy'), to_date('" . $date_to . "','dd/mm/yyyy'), " . vg_int($no_of_bedrooms) . " ) AS price ";
+        $query .= ", villa_functions.offer_text( v.villa_id , to_date('" . $date_from . "','dd/mm/yyyy'), to_date('" . $date_to . "','dd/mm/yyyy'), " . vg_int($no_of_bedrooms) . " ) AS offer_text ";
         $query .= ", tax_percentage ";
         $query .= ", currency  ";
         $query .= "from villa_location_vw v  ";
         $query .= "where exists (select 1 from villa_price vp where vp.villa_id = v.villa_id and to_date('" . $date_from . "','dd/mm/yyyy') between valid_from and valid_to)  ";
         $query .= "and exists (select 1 from booking b where to_date('" . $date_from . "','dd/mm/yyyy') not between arrive and depart and b.villa_id = v.villa_id)  ";
-        $query .= "and  destination_id = " . $destination_id;
-        $query .= "and beds >= " . $no_of_bedrooms;
+        $query .= "and  destination_id = " . vg_int($destination_id);
+        $query .= "and beds >= " . vg_int($no_of_bedrooms);
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -619,45 +638,45 @@ if ( ! function_exists( 'searchVillas' ) ) {
         // $query .= " destination_id,location_name, case when region_name is not null then region_name || ', ' || location_name else ";
         // $query .= " location_name end as location, image, ";
         // $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."' ";
-        // $query .= " , 'dd/mm/yyyy'),".$no_of_bedrooms.") as price, ";
+        // $query .= " , 'dd/mm/yyyy'),".vg_int($no_of_bedrooms).") as price, ";
         // $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_to."', 'dd/mm/yyyy'), to_date('".$date_from."', 'dd/mm/yyyy' ";
-        // $query .= " ), ".$no_of_bedrooms.") as offer_text,tax_percentage,currency from villa_location_vw v where exists ( select 1 ";
+        // $query .= " ), ".vg_int($no_of_bedrooms).") as offer_text,tax_percentage,currency from villa_location_vw v where exists ( select 1 ";
         // $query .= " from villa_price vp where vp.villa_id = v.villa_id and to_date('".$date_from."', 'dd/mm/yyyy') between valid_from ";
         // $query .= " and valid_to ) and not exists ( select 1 from booking b where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and ";
-        // $query .= " depart and b.villa_id = v.villa_id ) and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        // $query .= " depart and b.villa_id = v.villa_id ) and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
         // if($location_ids)
-        //     $query .= " and location_id in (" . $location_ids . ") ";
+        //     $query .= " and location_id in (" . vg_int_list($location_ids) . ") ";
              
         // if($region_ids)
-        //     $query .= " and region_id in (" . $region_ids . ") ";
+        //     $query .= " and region_id in (" . vg_int_list($region_ids) . ") ";
         // $query .= " union ";
         // $query .= " select villa_id,'Villa ' || v.vg_number as villa_name,vg_number,beds,agent_id,baths,sleeps,is_priority,destination_name, ";
         // $query .= " destination_id,location_name,case when region_name is not null then region_name || ', ' || location_name else ";
         // $query .= " location_name end as location, image, ";
-        // $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as price, ";
-        // $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date ('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as offer_text, ";
+        // $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as price, ";
+        // $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date ('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as offer_text, ";
         // $query .= " tax_percentage,currency from villa_location_vw v where not exists ( select 1 from villa_price vp where vp.villa_id = v.villa_id ";
         // $query .= " and to_date('".$date_to."', 'dd/mm/yyyy') between valid_from and valid_to ) and not exists ( select 1 from booking b ";
         // $query .= " where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and depart and b.villa_id = v.villa_id ) ";
-        // $query .= " and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        // $query .= " and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
         // if($location_ids)
-        //     $query .= " and location_id in (" . $location_ids . ") ";
+        //     $query .= " and location_id in (" . vg_int_list($location_ids) . ") ";
              
         // if($region_ids)
-        //     $query .= " and region_id in (" . $region_ids . ") ";
+        //     $query .= " and region_id in (" . vg_int_list($region_ids) . ") ";
         // $query .= " union ";
         // $query .= " select villa_id,'Villa ' || v.vg_number as villa_name,vg_number,beds,baths,agent_id, sleeps,is_priority,destination_name, ";
         // $query .= " destination_id,location_name,case when region_name is not null then region_name || ', ' || location_name else ";
         // $query .= " location_name end as location,image, ";
-        // $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as price, ";
-        // $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as offer_text, ";
+        // $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as price, ";
+        // $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as offer_text, ";
         // $query .= " tax_percentage,currency from villa_location_vw v where exists ( select 1 from booking b where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and depart ";
-        // $query .= " and b.villa_id = v.villa_id ) and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        // $query .= " and b.villa_id = v.villa_id ) and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
         // if($location_ids)
-        //     $query .= " and location_id in (" . $location_ids . ") ";
+        //     $query .= " and location_id in (" . vg_int_list($location_ids) . ") ";
              
         // if($region_ids)
-        //     $query .= " and region_id in (" . $region_ids . ") ";
+        //     $query .= " and region_id in (" . vg_int_list($region_ids) . ") ";
         
         // $query .= " ) ";
         
@@ -681,45 +700,45 @@ if ( ! function_exists( 'searchVillas' ) ) {
         $query .= " destination_id,location_name, case when region_name is not null then region_name || ', ' || location_name else ";
         $query .= " location_name end as location, image, 1 as availability, ";
         $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."' ";
-        $query .= " , 'dd/mm/yyyy'),".$no_of_bedrooms.") as price, ";
+        $query .= " , 'dd/mm/yyyy'),".vg_int($no_of_bedrooms).") as price, ";
         $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_to."', 'dd/mm/yyyy'), to_date('".$date_from."', 'dd/mm/yyyy' ";
-        $query .= " ), ".$no_of_bedrooms.") as offer_text,tax_percentage,currency from villa_location_vw v where exists ( select 1 ";
+        $query .= " ), ".vg_int($no_of_bedrooms).") as offer_text,tax_percentage,currency from villa_location_vw v where exists ( select 1 ";
         $query .= " from villa_price vp where vp.villa_id = v.villa_id and to_date('".$date_from."', 'dd/mm/yyyy') between valid_from ";
         $query .= " and valid_to ) and not exists ( select 1 from booking b where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and ";
-        $query .= " depart and b.villa_id = v.villa_id ) and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        $query .= " depart and b.villa_id = v.villa_id ) and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
         if($location_ids)
-            $query .= " and location_id in (" . $location_ids . ") ";
+            $query .= " and location_id in (" . vg_int_list($location_ids) . ") ";
              
         if($region_ids)
-            $query .= " and region_id in (" . $region_ids . ") ";
+            $query .= " and region_id in (" . vg_int_list($region_ids) . ") ";
         $query .= " union ";
         $query .= " select villa_id,'Villa ' || v.vg_number as villa_name,vg_number,beds,agent_id,baths,sleeps,is_priority,destination_name, ";
         $query .= " destination_id,location_name,case when region_name is not null then region_name || ', ' || location_name else ";
         $query .= " location_name end as location, image, 1 as availability, ";
-        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as price, ";
-        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date ('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as offer_text, ";
+        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as price, ";
+        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date ('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as offer_text, ";
         $query .= " tax_percentage,currency from villa_location_vw v where not exists ( select 1 from villa_price vp where vp.villa_id = v.villa_id ";
         $query .= " and to_date('".$date_to."', 'dd/mm/yyyy') between valid_from and valid_to ) and not exists ( select 1 from booking b ";
         $query .= " where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and depart and b.villa_id = v.villa_id ) ";
-        $query .= " and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        $query .= " and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
         if($location_ids)
-            $query .= " and location_id in (" . $location_ids . ") ";
+            $query .= " and location_id in (" . vg_int_list($location_ids) . ") ";
              
         if($region_ids)
-            $query .= " and region_id in (" . $region_ids . ") ";
+            $query .= " and region_id in (" . vg_int_list($region_ids) . ") ";
         $query .= " union ";
         $query .= " select villa_id,'Villa ' || v.vg_number as villa_name,vg_number,beds,baths,agent_id, sleeps,is_priority,destination_name, ";
         $query .= " destination_id,location_name,case when region_name is not null then region_name || ', ' || location_name else ";
         $query .= " location_name end as location,image, 0 as availability, ";
-        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as price, ";
-        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as offer_text, ";
+        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as price, ";
+        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as offer_text, ";
         $query .= " tax_percentage,currency from villa_location_vw v where exists ( select 1 from booking b where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and depart ";
-        $query .= " and b.villa_id = v.villa_id ) and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        $query .= " and b.villa_id = v.villa_id ) and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
         if($location_ids)
-            $query .= " and location_id in (" . $location_ids . ") ";
+            $query .= " and location_id in (" . vg_int_list($location_ids) . ") ";
              
         if($region_ids)
-            $query .= " and region_id in (" . $region_ids . ") ";
+            $query .= " and region_id in (" . vg_int_list($region_ids) . ") ";
         
         $query .= " ) ";
         
@@ -817,27 +836,27 @@ if ( ! function_exists( 'searchVillalistVillas' ) ) {
         $query .= " destination_id,location_name, case when region_name is not null then region_name || ', ' || location_name else ";
         $query .= " location_name end as location, image, ";
         $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."' ";
-        $query .= " , 'dd/mm/yyyy'),".$no_of_bedrooms.") as price, ";
+        $query .= " , 'dd/mm/yyyy'),".vg_int($no_of_bedrooms).") as price, ";
         $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_to."', 'dd/mm/yyyy'), to_date('".$date_from."', 'dd/mm/yyyy' ";
-        $query .= " ), ".$no_of_bedrooms.") as offer_text,tax_percentage,currency from villa_location_vw v where exists ( select 1 ";
+        $query .= " ), ".vg_int($no_of_bedrooms).") as offer_text,tax_percentage,currency from villa_location_vw v where exists ( select 1 ";
         $query .= " from villa_price vp where vp.villa_id = v.villa_id and to_date('".$date_from."', 'dd/mm/yyyy') between valid_from ";
         $query .= " and valid_to ) and not exists ( select 1 from booking b where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and ";
-        $query .= " depart and b.villa_id = v.villa_id ) and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        $query .= " depart and b.villa_id = v.villa_id ) and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
         if($location_ids)
-            $query .= " and location_id in (" . $location_ids . ") ";
+            $query .= " and location_id in (" . vg_int_list($location_ids) . ") ";
              
         if($region_ids)
-            $query .= " and region_id in (" . $region_ids . ") ";
+            $query .= " and region_id in (" . vg_int_list($region_ids) . ") ";
         $query .= " union ";
         $query .= " select villa_id,'Villa ' || v.vg_number as villa_name,vg_number,beds,agent_id,baths,sleeps,is_priority,destination_name, ";
         $query .= " destination_id,location_name,case when region_name is not null then region_name || ', ' || location_name else ";
         $query .= " location_name end as location, image, ";
-        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as price, ";
-        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date ('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as offer_text, ";
+        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as price, ";
+        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date ('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as offer_text, ";
         $query .= " tax_percentage,currency from villa_location_vw v where not exists ( select 1 from villa_price vp where vp.villa_id = v.villa_id ";
         $query .= " and to_date('".$date_to."', 'dd/mm/yyyy') between valid_from and valid_to ) and not exists ( select 1 from booking b ";
         $query .= " where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and depart and b.villa_id = v.villa_id ) ";
-        $query .= " and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        $query .= " and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
       
              
        
@@ -845,10 +864,10 @@ if ( ! function_exists( 'searchVillalistVillas' ) ) {
         $query .= " select villa_id,'Villa ' || v.vg_number as villa_name,vg_number,beds,baths,agent_id, sleeps,is_priority,destination_name, ";
         $query .= " destination_id,location_name,case when region_name is not null then region_name || ', ' || location_name else ";
         $query .= " location_name end as location,image, ";
-        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as price, ";
-        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$no_of_bedrooms.") as offer_text, ";
+        $query .= " villa_functions.calculate_price(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as price, ";
+        $query .= " villa_functions.offer_text(v.villa_id, to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($no_of_bedrooms).") as offer_text, ";
         $query .= " tax_percentage,currency from villa_list_villas_vw v where exists ( select 1 from booking b where to_date('".$date_from."', 'dd/mm/yyyy') between arrive and depart ";
-        $query .= " and b.villa_id = v.villa_id ) and destination_id = ".$destination_id." and beds >= ".$no_of_bedrooms." ";
+        $query .= " and b.villa_id = v.villa_id ) and destination_id = ".vg_int($destination_id)." and beds >= ".vg_int($no_of_bedrooms)." ";
       
              
        
@@ -920,7 +939,7 @@ if ( ! function_exists( 'searchVillalistVillas' ) ) {
 // Fetch  Villa Images for Slider
 if ( ! function_exists( 'fetchVillaSliderImages' ) ) {
     function fetchVillaSliderImages($conn, $villa_id) {
-        $query = "select full_img from image where villa_id = " . $villa_id . " and floorplan = 0 order by priority";
+        $query = "select full_img from image where villa_id = " . vg_int($villa_id) . " and floorplan = 0 order by priority";
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -948,7 +967,7 @@ if ( ! function_exists( 'fetchVillaSliderImages' ) ) {
 // Fetch  Villa Images for Slider
 if ( ! function_exists( 'fetchVillaMinMaxPrice' ) ) {
     function fetchVillaMinMaxPrice($conn, $villa_id) {
-        $query = "select min(price), max(price) from villa_price where valid_to >= trunc(sysdate) and villa_id =".$villa_id;
+        $query = "select min(price), max(price) from villa_price where valid_to >= trunc(sysdate) and villa_id =".vg_int($villa_id);
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -979,7 +998,7 @@ if ( ! function_exists( 'fetchVillaMinMaxPrice' ) ) {
 // Fetch Location's regions
 if ( ! function_exists( 'fetchLocationRegions' ) ) {
     function fetchLocationRegions($conn, $location_ids) {
-        $query = "select region_id, name from region where location_id in (" . $location_ids . ")";
+        $query = "select region_id, name from region where location_id in (" . vg_int_list($location_ids) . ")";
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -1010,8 +1029,8 @@ if ( ! function_exists( 'fetchVillaDetails' ) ) {
         // $query = "select vg_number, villa_id,villa_description, villa_summary, baths, sleeps ,is_priority,  beds , agent_id, agent_name, villa_summary, location_id, location_name, destination_id, region_name, destination_name, ";
         // $query .= "long_destination_description , oceanfront, oceanview, pool, ac, maid, chef, broadband, tennis, daily_breakfast, car_and_driver, destination_id ";
         // $query .= " , (select full_img from image i where i.villa_id = v.villa_id and i.floorplan = 0 and priority = 1 fetch first row only) As random_villa_image, agent_name, agent_image, agent_email, booknow, latitude, longitude ";
-        // $query .= " , villa_functions.calculate_price( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". $bedrooms ." ) AS price ";
-        // $query .= " , villa_functions.offer_text( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". $bedrooms ."  ) AS offer_text ";
+        // $query .= " , villa_functions.calculate_price( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". vg_int($bedrooms) ." ) AS price ";
+        // $query .= " , villa_functions.offer_text( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". vg_int($bedrooms) ."  ) AS offer_text ";
         // $query .= " , tax_percentage ";
         // $query .= " , currency  ";
         // $query .= " from villa_location_vw v ";
@@ -1021,12 +1040,12 @@ if ( ! function_exists( 'fetchVillaDetails' ) ) {
         $query = "select vg_number, villa_id,villa_description, villa_summary, baths, sleeps ,is_priority,  beds , agent_id, agent_name, villa_summary, location_id, location_name, destination_id, region_name, destination_name, ";
         $query .= "long_destination_description , oceanfront, oceanview, pool, ac, maid, chef, broadband, tennis, daily_breakfast, car_and_driver, destination_id ";
         $query .= " , (select full_img from image i where i.villa_id = v.villa_id and i.floorplan = 0 and priority = 1 fetch first row only) As random_villa_image, agent_name, agent_image, agent_email, booknow, latitude, longitude ";
-        $query .= " , villa_functions.calculate_price( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". $bedrooms ." ) AS price ";
-        $query .= " , villa_functions.offer_text( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". $bedrooms ."  ) AS offer_text ";
+        $query .= " , villa_functions.calculate_price( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". vg_int($bedrooms) ." ) AS price ";
+        $query .= " , villa_functions.offer_text( v.villa_id , trunc(sysdate+7) , trunc(sysdate+14) , ". vg_int($bedrooms) ."  ) AS offer_text ";
         $query .= " , tax_percentage ";
         $query .= " , currency , destination_image, villa_title";
         $query .= " from villa_location_vw v ";
-        $query .= " where vg_number = " . $vg_number;
+        $query .= " where vg_number = " . vg_int($vg_number);
 
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -1097,7 +1116,7 @@ if ( ! function_exists( 'fetchVillaDetails' ) ) {
 // Fetch Destination
 if ( ! function_exists( 'fetchVillaReviews' ) ) {
     function fetchVillaReviews($conn, $villa_id) { 
-        $stid = oci_parse($conn, "Select * from review where villa_id =".$villa_id);
+        $stid = oci_parse($conn, "Select * from review where villa_id =".vg_int($villa_id));
         if (!$stid) {
             $e = oci_error($conn);
             echo $e['message']; die;
@@ -1124,7 +1143,7 @@ if ( ! function_exists( 'fetchVillaReviews' ) ) {
 if ( ! function_exists( 'fetchDestination' ) ) {
     function fetchDestination($conn, $destination_id) {
         // Prepare the statement
-        $stid = oci_parse($conn, 'SELECT name, destination_id, image FROM destination WHERE destination_id = ' . $destination_id);
+        $stid = oci_parse($conn, 'SELECT name, destination_id, image FROM destination WHERE destination_id = ' . vg_int($destination_id));
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -1152,7 +1171,7 @@ if ( ! function_exists( 'fetchDestination' ) ) {
 if ( ! function_exists( 'fetchLocation' ) ) {
     function fetchLocation($conn, $location_id) {
         // Prepare the statement
-        $stid = oci_parse($conn, 'SELECT name, location_id FROM location WHERE location_id = ' . $location_id);
+        $stid = oci_parse($conn, 'SELECT name, location_id FROM location WHERE location_id = ' . vg_int($location_id));
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
@@ -1191,7 +1210,7 @@ if ( ! function_exists( 'fetchSimilarLaxuryVillas' ) ) {
         $query .= " select vg_number, villa_id, baths, sleeps , beds, villa_description, location_name, destination_name, DBMS_RANDOM.value(low => 1, high => 10) randomnr ";
         $query .= ", (select full_img from image i where i.villa_id = v.villa_id and floorplan = 0 and priority = 1 fetch first row only) random_villa_image ";
         $query .= " from villa_location_vw v ";
-        $query .= " where destination_id= " . $destination_id . " and vg_number != " . $villa_id ." and beds >= ".$beds;
+        $query .= " where destination_id= " . vg_int($destination_id) . " and vg_number != " . vg_int($villa_id) ." and beds >= ".vg_int($beds);
         $query .= " order by randomnr) ";
         $query .= " fetch  first 3 rows only";
         
@@ -1232,7 +1251,7 @@ if ( ! function_exists( 'fetchSimilarLaxuryVillas' ) ) {
 // Fetch Unavailable Dates
 if ( ! function_exists( 'fetchUnavailableDates' ) ) {
     function fetchUnavailableDates($conn, $villa_id) {
-        $query = "select arrive,depart from booking where arrive>=trunc(sysdate) and villa_id = " . $villa_id . " order by arrive";
+        $query = "select arrive,depart from booking where arrive>=trunc(sysdate) and villa_id = " . vg_int($villa_id) . " order by arrive";
         
         $stid = oci_parse($conn, $query);
         if (!$stid) {
@@ -1271,23 +1290,24 @@ if( ! function_exists( 'fetchVillaRatesHeaders' ) ) {
         $query .= " ,decode(nvl(max(v.tax_percentage),0),0,null,' + ' ||max(v.tax_percentage) || '% service charge, taxes, etc')as tax_percentage    ";
         $query .= " from villa_price vp,villa v  ";
         $query .= " where v.villa_id = vp.villa_id ";
-        $query .= " and vp.villa_id = " . $villa_id;
+        $query .= " and vp.villa_id = :villa_id";
         $query .= " group by nr_of_rooms ";
         $query .= " order by nr_of_rooms";
-        
+
         $stid = oci_parse($conn, $query);
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
         }
-        
+        oci_bind_by_name($stid, ':villa_id', $villa_id);
+
         // Perform the logic of the query
         $r = oci_execute($stid);
         if (!$r) {
             $e = oci_error($stid);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
         }
-        
+
         $villa_rates_header = [];
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
@@ -1317,21 +1337,25 @@ if( ! function_exists( 'fetchVillaRatesData' ) ) {
         $query .= " , villa v ";
         $query .= " where pt.price_type_id = vp.price_type_id ";
         $query .= " and v.villa_id = vp.villa_id ";
-        $query .= " and vp.villa_id = " . $villa_id;
+        $query .= " and vp.villa_id = :villa_id";
         $query .= " and vp.valid_from < to_date('01-jan-3000','dd-mon-yyyy')";
         if( $no_of_rooms ) {
-            $query .= " and vp.nr_of_rooms = " . $no_of_rooms;
+            $query .= " and vp.nr_of_rooms = :no_of_rooms";
         } else {
             $query .= " and vp.nr_of_rooms IS NULL ";
         }
         $query .= " order by vp.valid_to";
-        
+
         $stid = oci_parse($conn, $query);
         if (!$stid) {
             $e = oci_error($conn);
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
         }
-        
+        oci_bind_by_name($stid, ':villa_id', $villa_id);
+        if( $no_of_rooms ) {
+            oci_bind_by_name($stid, ':no_of_rooms', $no_of_rooms);
+        }
+
         // Perform the logic of the query
         $r = oci_execute($stid);
         if (!$r) {
@@ -1527,10 +1551,10 @@ if ( ! function_exists( 'fetchAbsoluteBeachFrontVillas' ) ) {
         $query .= " from booking b ";
         $query .= " where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." )";
+            $query .= " and location_id in ( ".vg_int_list($location)." )";
         }
         $query .= " union ";
         $query .= " select villa_id , 'Villa ' || v.vg_number as villa_name , vg_number , beds , baths , sleeps, is_priority , destination_name, destination_id , ";
@@ -1542,10 +1566,10 @@ if ( ! function_exists( 'fetchAbsoluteBeachFrontVillas' ) ) {
         $query .= " where not exists (select 1 from villa_price vp where vp.villa_id = v.villa_id ) ";
         $query .= " and exists (select 1 from booking b where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." )";
+            $query .= " and location_id in ( ".vg_int_list($location)." )";
         }
         //$query .= " and destination_id = 6 and beds >= 4 ";
         $query .= " union ";
@@ -1557,10 +1581,10 @@ if ( ! function_exists( 'fetchAbsoluteBeachFrontVillas' ) ) {
         $query .= " from villa_location_vw v ";
         $query .= " where exists (select 1 from booking b where trunc(sysdate+7) between arrive and depart and b.villa_id = v.villa_id)   ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " ) ";
         //$query .= " and destination_id = 6 and beds >= 4 ) ";
@@ -1639,10 +1663,10 @@ if ( ! function_exists( 'fetchWeddingVillas' ) ) {
         $query .= " from booking b ";
         $query .= " where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " union ";
         $query .= " select villa_id , 'Villa ' || v.vg_number as villa_name , vg_number , beds , baths , sleeps, is_priority , destination_name, destination_id , ";
@@ -1654,10 +1678,10 @@ if ( ! function_exists( 'fetchWeddingVillas' ) ) {
         $query .= " where not exists (select 1 from villa_price vp where vp.villa_id = v.villa_id ) ";
         $query .= " and exists (select 1 from booking b where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " union ";
         $query .= " select villa_id , 'Villa ' || v.vg_number as villa_name , vg_number , beds , baths , sleeps, is_priority , destination_name, destination_id , ";
@@ -1668,10 +1692,10 @@ if ( ! function_exists( 'fetchWeddingVillas' ) ) {
         $query .= " from villa_location_vw v ";
         $query .= " where exists (select 1 from booking b where trunc(sysdate+7) between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " ) ";
         $query .= " where wedding = 1 ";
@@ -1750,10 +1774,10 @@ if ( ! function_exists( 'fetchHollidaySeasonVillas' ) ) {
         $query .= " from booking b ";
         $query .= " where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         
         $query .= " union ";
@@ -1766,10 +1790,10 @@ if ( ! function_exists( 'fetchHollidaySeasonVillas' ) ) {
         $query .= " where not exists (select 1 from villa_price vp where vp.villa_id = v.villa_id ) ";
         $query .= " and exists (select 1 from booking b where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         
         $query .= " union ";
@@ -1781,10 +1805,10 @@ if ( ! function_exists( 'fetchHollidaySeasonVillas' ) ) {
         $query .= " from villa_location_vw v ";
         $query .= " where exists (select 1 from booking b where trunc(sysdate+7) between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " ) ";
         $query .= " where holiday_season = 1 ";
@@ -1860,10 +1884,10 @@ if ( ! function_exists( 'fetchCorporateRetreatsVillas' ) ) {
         $query .= " from booking b ";
         $query .= " where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         
         $query .= " union ";
@@ -1876,10 +1900,10 @@ if ( ! function_exists( 'fetchCorporateRetreatsVillas' ) ) {
         $query .= " where not exists (select 1 from villa_price vp where vp.villa_id = v.villa_id ) ";
         $query .= " and exists (select 1 from booking b where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " union ";
         $query .= " select villa_id , 'Villa ' || v.vg_number as villa_name , vg_number , beds , baths , sleeps, is_priority , destination_name, destination_id , ";
@@ -1890,10 +1914,10 @@ if ( ! function_exists( 'fetchCorporateRetreatsVillas' ) ) {
         $query .= " from villa_location_vw v ";
         $query .= " where exists (select 1 from booking b where trunc(sysdate+7) between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " ) ";
         $query .= " where corporate_retreats = 1 ";
@@ -1969,10 +1993,10 @@ if ( ! function_exists( 'fetchExclusiveVillas' ) ) {
         $query .= " from booking b ";
         $query .= " where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         
         $query .= " union ";
@@ -1985,10 +2009,10 @@ if ( ! function_exists( 'fetchExclusiveVillas' ) ) {
         $query .= " where not exists (select 1 from villa_price vp where vp.villa_id = v.villa_id ) ";
         $query .= " and exists (select 1 from booking b where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         
         $query .= " union ";
@@ -2000,10 +2024,10 @@ if ( ! function_exists( 'fetchExclusiveVillas' ) ) {
         $query .= " from villa_location_vw v ";
         $query .= " where exists (select 1 from booking b where trunc(sysdate+7) between arrive and depart and b.villa_id = v.villa_id)  ";
         if($destination) {
-            $query .= " and destination_id = ".$destination;
+            $query .= " and destination_id = ".vg_int($destination);
         }
         if($location) {
-            $query .= " and location_id in ( ".$location." ) ";
+            $query .= " and location_id in ( ".vg_int_list($location)." ) ";
         }
         $query .= " ) ";
         $query .= " where exclusive_villa = 1 ";
@@ -2065,7 +2089,7 @@ if ( ! function_exists( 'fetchFavoritesVillaDetails' ) ) {
         $query .= "long_destination_description , oceanfront, oceanview, pool, ac, maid, chef, broadband, tennis, daily_breakfast, car_and_driver, destination_id ";
         $query .= " , (select full_img from image i where i.villa_id = v.villa_id fetch first row only) random_villa_image, agent_name, agent_image, agent_email, booknow, latitude, longitude ";
         $query .= " from villa_location_vw v ";
-        $query .= " where vg_number IN (" . $vg_numbers . ")";
+        $query .= " where vg_number IN (" . vg_int_list($vg_numbers) . ")";
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -2234,7 +2258,7 @@ if ( ! function_exists( 'fetchVillasByPriceFilter' ) ) {
         $query .= " is_priority, 2 orderno ";
         $query .= " from villa_location_vw v ";
         $query .= " where not exists (select 1 from villa_price vp where vp.villa_id = v.villa_id ) ";
-        $query .= " and exists (select 1 from booking b where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) and destination_id = ".$destination_id." and beds >= 4 ";
+        $query .= " and exists (select 1 from booking b where trunc(sysdate+7)  not between arrive and depart and b.villa_id = v.villa_id) and destination_id = ".vg_int($destination_id)." and beds >= 4 ";
         $query .= " union ";
         $query .= " select villa_id , 'Villa ' || v.vg_number as villa_name , vg_number , beds , baths , sleeps , destination_name, destination_id , ";
         $query .= " location_name || case when region_name is not null then ', ' || region_name else null end as location , image , ";
@@ -2516,7 +2540,7 @@ if ( ! function_exists( 'getCountryId' ) ) {
 if ( ! function_exists( 'fetchRatesOfSingleVilla' ) ) {
     function fetchRatesOfSingleVilla($conn, $villa_id, $date_from, $date_to, $bedrooms) { 
         
-        $query = "select villa_functions.calculate_price(".$villa_id.", to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".$bedrooms.") as price from dual";
+        $query = "select villa_functions.calculate_price(".vg_int($villa_id).", to_date('".$date_from."', 'dd/mm/yyyy'), to_date('".$date_to."', 'dd/mm/yyyy'), ".vg_int($bedrooms).") as price from dual";
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -2554,7 +2578,7 @@ if ( ! function_exists( 'fetchMetaDataForVilla' ) ) {
         $query .= " , 'true' as mssmarttagspreventparsing ";
         $query .= " , head_title as title ";
         $query .= " from villa_location_vw ";
-        $query .= " where villa_id = " . $villa_id;
+        $query .= " where villa_id = " . vg_int($villa_id);
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -2601,7 +2625,7 @@ if ( ! function_exists( 'fetchMetaDataForDestination' ) ) {
         // $query .= " , 'true' as mssmarttagspreventparsing ";
         // $query .= " , head_title as title ";
         // $query .= " from destination ";
-        // $query .= " where destination_id = " . $destination_id;
+        // $query .= " where destination_id = " . vg_int($destination_id);
         
         $query = "select nvl(meta_description, head_title) as description ";
         $query .= " , 'false' as block ";
@@ -2612,7 +2636,7 @@ if ( ! function_exists( 'fetchMetaDataForDestination' ) ) {
         $query .= " , 'true' as mssmarttagspreventparsing ";
         $query .= " , head_title as title ";
         $query .= " from destination ";
-        $query .= " where destination_id = " . $destination_id;
+        $query .= " where destination_id = " . vg_int($destination_id);
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -2649,8 +2673,8 @@ if ( ! function_exists( 'fetchMetaDataForLocation' ) ) {
         
         $query = "select head_title as title,meta_description as description ";
         $query .= " from location ";
-        $query .= " where location_id = " . $location_id;
-        $query .= " and destination_id = " . $destination_id;
+        $query .= " where location_id = " . vg_int($location_id);
+        $query .= " and destination_id = " . vg_int($destination_id);
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -2683,9 +2707,9 @@ if ( ! function_exists( 'fetchMetaDataForRegion' ) ) {
         
         $query = "select head_title as title,meta_description as description ";
         $query .= " from region ";
-        $query .= " where region_id = " . $region_id;
-        $query .= " and location_id = " . $location_id;
-        $query .= " and destination_id = " . $destination_id;
+        $query .= " where region_id = " . vg_int($region_id);
+        $query .= " and location_id = " . vg_int($location_id);
+        $query .= " and destination_id = " . vg_int($destination_id);
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -2718,7 +2742,7 @@ if ( ! function_exists( 'fetchMetaDataByRegion' ) ) {
         
         $query = "select head_title as title,meta_description as description ";
         $query .= " from region ";
-        $query .= " where region_id = " . $region_id;
+        $query .= " where region_id = " . vg_int($region_id);
         
         // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -2749,7 +2773,7 @@ if ( ! function_exists( 'fetchMetaDataByRegion' ) ) {
 
 if ( ! function_exists( 'fetchVillaFloorPlan' ) ) {
     function fetchVillaFloorPlan($conn, $villa_id) {
-        $query = "select full_img from image  where villa_id = " . $villa_id . "  and floorplan = 1 ";
+        $query = "select full_img from image  where villa_id = " . vg_int($villa_id) . "  and floorplan = 1 ";
         // Prepare the statement
         $stid = oci_parse($conn, $query);
         if (!$stid) {
@@ -2775,7 +2799,7 @@ if ( ! function_exists( 'fetchVillaFloorPlan' ) ) {
 
 if ( ! function_exists( 'fetchVillaVideos' ) ) {
     function fetchVillaVideos($conn, $villa_id) {
-        $query = "select http_code from video where villa_id = " . $villa_id;
+        $query = "select http_code from video where villa_id = " . vg_int($villa_id);
         // Prepare the statement
         $stid = oci_parse($conn, $query);
         if (!$stid) {
@@ -2832,7 +2856,7 @@ if( ! function_exists( 'fetchNumberOfBedrooms' ) ) {
         $query .= "else nr_of_rooms ";
         $query .= "end nr_of_rooms ";
         $query .= "from villa_price p ";
-        $query .= "where villa_id = " . $villa_id;
+        $query .= "where villa_id = " . vg_int($villa_id);
         $query .= " order by nr_of_rooms";
         
         // Prepare the statement
@@ -2979,12 +3003,12 @@ if( ! function_exists( 'recommend' ) ) {
 
 if( ! function_exists( 'fetchNumberOfRooms' ) ) {
     function fetchNumberOfRooms($conn, $villa_id) {
-      //  $query = "select distinct nr_of_rooms from villa_price where villa_id = " . $villa_id . " and nr_of_rooms is not null";
+      //  $query = "select distinct nr_of_rooms from villa_price where villa_id = " . vg_int($villa_id) . " and nr_of_rooms is not null";
         
         
-        $query="select distinct nr_of_rooms from villa_price where villa_id = " . $villa_id . " and nr_of_rooms is not null
+        $query="select distinct nr_of_rooms from villa_price where villa_id = " . vg_int($villa_id) . " and nr_of_rooms is not null
 union
-select beds from villa where villa_id = " . $villa_id;
+select beds from villa where villa_id = " . vg_int($villa_id);
         // Prepare the statement
         $stid = oci_parse($conn, $query);
         if (!$stid) {
@@ -3051,7 +3075,7 @@ if( ! function_exists( 'fetchVillaInclusions' ) ) {
 			 decode(car_and_driver,1,'<li>Airport transfers, one round trip</li>',null)||
 			'</ul>' AS INCLUSIONS
         from villa 
-    	where villa_id = " . $villa_id;
+    	where villa_id = " . vg_int($villa_id);
 	    
 	    // Prepare the statement
         $stid = oci_parse($conn, $query);
@@ -3090,7 +3114,7 @@ if( ! function_exists( 'fetchVillaPricing' ) ) {
             v.tax_percentage
         from villa v, currency c
 	    where c.currency_code = v.currency_code
-	    and villa_id = " . $villa_id;
+	    and villa_id = " . vg_int($villa_id);
 	    
 	    // Prepare the statement
         $stid = oci_parse($conn, $query);

@@ -1062,7 +1062,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["recommend-form-submit"] ?? 
         
         
            $conn = oracleDbConnection();
-$bookedDates = fetchVillaBookedDates($conn,$villa_details["VILLA_ID"]);
+$bookedDates = fetchVillaBookedDates($conn,$villa_details["VILLA_ID"] ?? "");
 $bookedDatesformatted =[];
 //echo "<pre>";
 
