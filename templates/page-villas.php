@@ -305,7 +305,7 @@ if( is_array($location_ids_arr) && sizeof($location_ids_arr) == 0) {
         }
     }
 }
-$desTitle = "";
+$desTitle = [];
 $request_region_ids = vg_request_array('region_id');
 $request_location_ids = vg_request_array('location_id');
 if( $request_region_ids ) {
@@ -382,7 +382,7 @@ $region_heading_breadcrum = strtolower(str_replace([" "], "-", $region_heading ?
             <h1 class="banner-title"><?php echo isset($desTitle['TITLE']) && strlen($desTitle['TITLE']) > 1 ? $desTitle['TITLE'] : strtoupper(str_replace("-", " ", $title))." Villas"; ?></h1>
             <?php
             
-             echo $desTitle['DESCRIPTION'] ? $desTitle['DESCRIPTION'] : ""; ?>
+             echo !empty($desTitle['DESCRIPTION']) ? $desTitle['DESCRIPTION'] : ""; ?>
         </div>
         
         <li title="<?php echo $heading; ?>">
@@ -430,23 +430,23 @@ $region_heading_breadcrum = strtolower(str_replace([" "], "-", $region_heading ?
                 
                 <div class="bottom_content_section">
           
-                        <?php if($desTitle['CONTENT_1']){?>
-                        <div class="content_1" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_1'] ?>;">
+                        <?php if(!empty($desTitle['CONTENT_1'])){?>
+                        <div class="content_1" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_1'] ?? '' ?>;">
                         <?php echo $desTitle['CONTENT_1'];?>
                         </div>
                         <?php } ?>
-                        <?php if($desTitle['CONTENT_2']){?>
-                        <div class="content_2" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_2'] ?>;">
+                        <?php if(!empty($desTitle['CONTENT_2'])){?>
+                        <div class="content_2" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_2'] ?? '' ?>;">
                         <?php echo $desTitle['CONTENT_2'];?>
                         </div>
                         <?php } ?>
-                        <?php if($desTitle['CONTENT_3']){?>
-                        <div class="content_3" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_3'] ?>;">
+                        <?php if(!empty($desTitle['CONTENT_3'])){?>
+                        <div class="content_3" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_3'] ?? '' ?>;">
                         <?php echo $desTitle['CONTENT_3'];?>
                         </div>
                         <?php } ?>
-                        <?php if($desTitle['CONTENT_4']){?>
-                        <div class="content_4" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_4'] ?>;">
+                        <?php if(!empty($desTitle['CONTENT_4'])){?>
+                        <div class="content_4" style="background:<?php echo $desTitle['CONTENT_BG_COLOUR_4'] ?? '' ?>;">
                         <?php echo $desTitle['CONTENT_4'];?>
                         </div>
                         <?php } ?>
