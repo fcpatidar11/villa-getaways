@@ -4,28 +4,49 @@ $all_destinations = fetchDestinationsForMenu($conn);
 
 
 
-$destinations_chumks = [];
+$destination_chunks = [];
 if(sizeof($all_destinations)) {
-    if(sizeof($all_destinations) > 1)
-	    $destinations_chumks[0] = array_slice($all_destinations, 0, 2, true);
-	    
-    if(sizeof($all_destinations) > 8)
-    	$destinations_chumks[1] = array_slice($all_destinations, 2, 5, true);
-	
-	if(sizeof($all_destinations) > 11)
-    	$destinations_chumks[2] = array_slice($all_destinations, 7, 3, true); 
-	
-	if(sizeof($all_destinations) > 15)
-    	$destinations_chumks[3] = array_slice($all_destinations, 10, 4, true);
-	
-	if(sizeof($all_destinations) > 20)
-    	$destinations_chumks[4] = array_slice($all_destinations, 13, 5, true);
 
-	if(sizeof($all_destinations) > 22)
-    	$destinations_chumks[5] = array_slice($all_destinations, 18, 6, true);
+	// Spread the destinations over the menu columns by rendered height
+	// (one row for the country link plus one row per location), so that no
+	// destination is ever dropped and the columns stay roughly even.
+	$column_count = min(6, sizeof($all_destinations));
 
-	
-	foreach ($destinations_chumks as $destinations) {
+	$weights = [];
+	$remaining_weight = 0;
+	foreach ($all_destinations as $destination_id => $destination) {
+		$weights[$destination_id] = 1 + sizeof($destination['LOCATIONS'] ?? []);
+		$remaining_weight += $weights[$destination_id];
+	}
+
+	$column_index = 0;
+	$column_weight = 0;
+	$remaining = sizeof($all_destinations);
+
+	foreach ($all_destinations as $destination_id => $destination) {
+		$destination_chunks[$column_index][$destination_id] = $destination;
+		$column_weight += $weights[$destination_id];
+		$remaining_weight -= $weights[$destination_id];
+		$remaining--;
+
+		$columns_left = $column_count - $column_index - 1;
+		if($columns_left < 1) {
+			continue;
+		}
+
+		// Target is recomputed from what is left, so the trailing columns
+		// never end up starved by rounding in the earlier ones.
+		$column_target = ceil(($column_weight + $remaining_weight) / ($columns_left + 1));
+
+		// Move on once this column is full, but only while enough
+		// destinations remain to keep every following column non-empty.
+		if(($column_weight >= $column_target && $remaining > $columns_left) || $remaining === $columns_left) {
+			$column_index++;
+			$column_weight = 0;
+		}
+	}
+
+	foreach ($destination_chunks as $destinations) {
 	    
 	   
 	    

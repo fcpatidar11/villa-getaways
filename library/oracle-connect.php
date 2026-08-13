@@ -19,6 +19,30 @@ if ( ! function_exists( 'vg_int_list' ) ) {
     }
 }
 
+// Normalise a fetched column that may come back as an OCI-Lob object.
+// CLOB columns are returned as objects, which are always truthy and never
+// empty(), so templates guarding with isset()/empty() would always render and
+// then echo an object. Loads the LOB, casts to string and trims, so callers
+// always get a plain string that empty() reports correctly.
+if ( ! function_exists( 'vg_lob_text' ) ) {
+    function vg_lob_text($value) {
+        if ( is_object($value) && method_exists($value, 'load') ) {
+            $value = $value->load();
+        }
+        return trim( (string) $value );
+    }
+}
+
+// True when a text column has no visible content once markup is stripped.
+// Descriptions saved from a rich text editor are often "<p>&nbsp;</p>", which
+// is a non-empty string but renders as a blank gap on the page.
+if ( ! function_exists( 'vg_is_blank_html' ) ) {
+    function vg_is_blank_html($value) {
+        $text = str_replace( array("\xc2\xa0", '&nbsp;'), ' ', wp_strip_all_tags( (string) $value ) );
+        return trim($text) === '';
+    }
+}
+
 // Establish Oracle DB Connection
 if ( ! function_exists( 'oracleDbConnection' ) ) {
     function oracleDbConnection() {
@@ -217,18 +241,18 @@ if ( ! function_exists( 'fetchDestinationTitle' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $destinationTitle['TITLE'] = $row['TITLE'];
-            $destinationTitle['DESCRIPTION'] = $row['DESCRIPTION'];
-            
-           $destinationTitle['CONTENT_1'] = ($row['CONTENT_1']) ? $row['CONTENT_1']->load() : '';
+            $destinationTitle['DESCRIPTION'] = vg_lob_text($row['DESCRIPTION']);
+
+           $destinationTitle['CONTENT_1'] = vg_lob_text($row['CONTENT_1']);
            $destinationTitle['CONTENT_BG_COLOUR_1'] = $row['CONTENT_BG_COLOUR_1'];
-           
-           $destinationTitle['CONTENT_2'] = ($row['CONTENT_2']) ? $row['CONTENT_2']->load() : '';
+
+           $destinationTitle['CONTENT_2'] = vg_lob_text($row['CONTENT_2']);
            $destinationTitle['CONTENT_BG_COLOUR_2'] = $row['CONTENT_BG_COLOUR_2'];
-           
-           $destinationTitle['CONTENT_3'] = ($row['CONTENT_3']) ? $row['CONTENT_3']->load() : '';
+
+           $destinationTitle['CONTENT_3'] = vg_lob_text($row['CONTENT_3']);
            $destinationTitle['CONTENT_BG_COLOUR_3'] = $row['CONTENT_BG_COLOUR_3'];
-           
-           $destinationTitle['CONTENT_4'] = ($row['CONTENT_4']) ? $row['CONTENT_4']->load() : '';
+
+           $destinationTitle['CONTENT_4'] = vg_lob_text($row['CONTENT_4']);
            $destinationTitle['CONTENT_BG_COLOUR_4'] = $row['CONTENT_BG_COLOUR_4'];
         
         
@@ -261,18 +285,18 @@ if ( ! function_exists( 'fetchLocationTitle' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $locationTitle['TITLE'] = $row['TITLE'];
-            $locationTitle['DESCRIPTION'] = $row['DESCRIPTION'];
-            
-            $locationTitle['CONTENT_1'] = ($row['CONTENT_1']) ? $row['CONTENT_1']->load() : '';
+            $locationTitle['DESCRIPTION'] = vg_lob_text($row['DESCRIPTION']);
+
+            $locationTitle['CONTENT_1'] = vg_lob_text($row['CONTENT_1']);
            $locationTitle['CONTENT_BG_COLOUR_1'] = $row['CONTENT_BG_COLOUR_1'];
-           
-           $locationTitle['CONTENT_2'] = ($row['CONTENT_2']) ? $row['CONTENT_2']->load() : '';
+
+           $locationTitle['CONTENT_2'] = vg_lob_text($row['CONTENT_2']);
            $locationTitle['CONTENT_BG_COLOUR_2'] = $row['CONTENT_BG_COLOUR_2'];
-           
-           $locationTitle['CONTENT_3'] = ($row['CONTENT_3']) ? $row['CONTENT_3']->load() : '';
+
+           $locationTitle['CONTENT_3'] = vg_lob_text($row['CONTENT_3']);
            $locationTitle['CONTENT_BG_COLOUR_3'] = $row['CONTENT_BG_COLOUR_3'];
-           
-           $locationTitle['CONTENT_4'] = ($row['CONTENT_4']) ? $row['CONTENT_4']->load() : '';
+
+           $locationTitle['CONTENT_4'] = vg_lob_text($row['CONTENT_4']);
            $locationTitle['CONTENT_BG_COLOUR_4'] = $row['CONTENT_BG_COLOUR_4'];
         }
         return $locationTitle;
@@ -304,7 +328,7 @@ if ( ! function_exists( 'fetchRegionTitle' ) ) {
         // Fetch the results of the query
         while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
             $regionTitle['TITLE'] = $row['TITLE'];
-            $regionTitle['DESCRIPTION'] = $row['DESCRIPTION'];
+            $regionTitle['DESCRIPTION'] = vg_lob_text($row['DESCRIPTION']);
         }
         return $regionTitle;
     }

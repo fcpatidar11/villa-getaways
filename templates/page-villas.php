@@ -380,9 +380,9 @@ $region_heading_breadcrum = strtolower(str_replace([" "], "-", $region_heading ?
     <ul id="page-banner">
         <div class="banner-description">
             <h1 class="banner-title"><?php echo isset($desTitle['TITLE']) && strlen($desTitle['TITLE']) > 1 ? $desTitle['TITLE'] : strtoupper(str_replace("-", " ", $title))." Villas"; ?></h1>
-            <?php
-            
-             echo !empty($desTitle['DESCRIPTION']) ? $desTitle['DESCRIPTION'] : ""; ?>
+            <?php if( !empty($desTitle['DESCRIPTION']) && !vg_is_blank_html($desTitle['DESCRIPTION']) ) { ?>
+                <?php echo $desTitle['DESCRIPTION']; ?>
+            <?php } ?>
         </div>
         
         <li title="<?php echo $heading; ?>">
